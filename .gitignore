@@ -1,0 +1,14 @@
+# Dependencies
+node_modules
+
+# Build
+.next
+out
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large media files (optional - remove lines if you want to include them)
+*.mp4
+videoplayback.mp4
