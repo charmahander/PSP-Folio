@@ -1,43 +1,5 @@
 import { create } from 'zustand';
-
-export interface CaseStudy {
-  id: string;
-  title: string;
-  tagline: string;
-  categories: string[];
-  thumbnail: string;
-  backgroundImage?: string;
-  content: {
-    overview: string;
-    role: string;
-    duration: string;
-    tools: string[];
-    sections: {
-      title: string;
-      content: string;
-      images?: string[];
-    }[];
-  };
-}
-
-export interface AboutItem {
-  id: string;
-  title: string;
-  type: 'profile' | 'folder' | 'item';
-  thumbnail?: string;
-  description?: string;
-  children?: AboutItem[];
-  gifUrl?: string;
-  bio?: string;
-  photo?: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  icon: string;
-  items: (CaseStudy | AboutItem | { id: string; title: string; type: string })[];
-}
+import type { Category, XMBChildItem, XMBItem, CaseStudy, AboutItem } from '@/types/xmb';
 
 interface PortfolioState {
   // Navigation state
@@ -49,7 +11,9 @@ interface PortfolioState {
   expandedContent: CaseStudy | null;
   expandedAbout: AboutItem | null;
   isInSubfolder: boolean;
-  subfolderItems: AboutItem[] | null;
+  subfolderItems: XMBChildItem[] | null;
+  activeFolderIndex: number | null;
+  activeFolderTitle: string | null;
   
   // Audio state
   isMuted: boolean;
@@ -82,20 +46,23 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   expandedAbout: null,
   isInSubfolder: false,
   subfolderItems: null,
+  activeFolderIndex: null,
+  activeFolderTitle: null,
   isMuted: false,
   
   categories: [
     {
-      id: 'case-studies',
-      name: 'Case Studies',
-      icon: 'gamepad',
+      id: 'game',
+      name: 'Games',
+      icon: 'game',
       items: [
         {
           id: 'project-1',
-          title: 'Project One',
-          tagline: 'Designing the future of mobile gaming',
+          title: 'PaidPiper',
+          type: 'caseStudy',
+          tagline: 'Music business co-pilot for indie artists',
           categories: ['UX Design', 'Mobile'],
-          thumbnail: '/images/umd-1.png',
+          thumbnail: '/images/projects/project-1.png',
           backgroundImage: '/images/bg-1.jpg',
           content: {
             overview: 'A comprehensive case study exploring mobile gaming UX.',
@@ -103,23 +70,18 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             duration: '3 months',
             tools: ['Figma', 'Protopie', 'Unity'],
             sections: [
-              {
-                title: 'The Challenge',
-                content: 'Creating an intuitive gaming experience for casual players.',
-              },
-              {
-                title: 'The Solution',
-                content: 'A gesture-based control system that adapts to player skill level.',
-              },
+              { title: 'The Challenge', content: 'Creating an intuitive gaming experience for casual players.' },
+              { title: 'The Solution', content: 'A gesture-based control system that adapts to player skill level.' },
             ],
           },
-        },
+        } as XMBItem,
         {
           id: 'project-2',
-          title: 'Project Two',
-          tagline: 'Reimagining social connectivity',
+          title: 'BMW Group x SCADpro',
+          type: 'caseStudy',
+          tagline: 'Intrapreneurial innovation strategy',
           categories: ['Product Design', 'Social'],
-          thumbnail: '/images/umd-2.png',
+          thumbnail: '/images/projects/project-2.png',
           content: {
             overview: 'Building meaningful connections through design.',
             role: 'Product Designer',
@@ -127,13 +89,14 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             tools: ['Figma', 'Framer', 'React'],
             sections: [],
           },
-        },
+        } as XMBItem,
         {
           id: 'project-3',
-          title: 'Project Three',
-          tagline: 'E-commerce reimagined',
+          title: 'BMW M x SCADpro',
+          type: 'caseStudy',
+          tagline: 'Innovative M-Driving Experience',
           categories: ['UI Design', 'E-commerce'],
-          thumbnail: '/images/umd-3.png',
+          thumbnail: '/images/projects/project-3.png',
           content: {
             overview: 'Streamlining the online shopping experience.',
             role: 'UI/UX Designer',
@@ -141,13 +104,14 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             tools: ['Sketch', 'InVision', 'Zeplin'],
             sections: [],
           },
-        },
+        } as XMBItem,
         {
           id: 'project-4',
-          title: 'Project Four',
-          tagline: 'Healthcare at your fingertips',
+          title: 'Billify',
+          type: 'caseStudy',
+          tagline: 'Personal finance manager',
           categories: ['UX Research', 'Healthcare'],
-          thumbnail: '/images/umd-4.png',
+          thumbnail: '/images/projects/project-4.png',
           content: {
             overview: 'Making healthcare accessible through technology.',
             role: 'UX Researcher',
@@ -155,88 +119,57 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
             tools: ['Figma', 'Maze', 'Dovetail'],
             sections: [],
           },
-        },
-        {
-          id: 'project-5',
-          title: 'Project Five',
-          tagline: 'The future of work',
-          categories: ['Product Design', 'SaaS'],
-          thumbnail: '/images/umd-5.png',
-          content: {
-            overview: 'Designing productivity tools for the modern workplace.',
-            role: 'Senior Product Designer',
-            duration: '8 months',
-            tools: ['Figma', 'Principle', 'Notion'],
-            sections: [],
-          },
-        },
+        } as XMBItem,
       ],
     },
     {
       id: 'about',
       name: 'About',
-      icon: 'user',
+      icon: 'about',
       items: [
         {
-          id: 'profile',
-          title: 'Who I Am',
-          type: 'profile',
-          thumbnail: '/images/profile.jpg',
-          photo: '/images/profile.jpg',
-          description: 'Designer, creator, and problem solver.',
-          bio: 'Add your bio here. Tell visitors about who you are, your background, and what drives you as a designer.',
+          id: 'origin-story',
+          title: 'The origin story',
+          type: 'item',
+          description: 'Foundational background and journey.',
         },
         {
-          id: 'manifesto',
+          id: 'design-manifesto',
           title: 'Design Manifesto',
           type: 'folder',
           children: [
-            {
-              id: 'manifesto-1',
-              title: 'Design with Purpose',
-              type: 'item',
-              description: 'Every pixel should serve a purpose.',
-            },
-            {
-              id: 'manifesto-2',
-              title: 'Embrace Constraints',
-              type: 'item',
-              description: 'Limitations breed creativity.',
-            },
-            {
-              id: 'manifesto-3',
-              title: 'Users First',
-              type: 'item',
-              description: 'Empathy is the foundation of great design.',
-            },
+            { id: 'manifesto-1', title: '1', type: 'item', description: 'Principle 1' },
+            { id: 'manifesto-2', title: '2', type: 'item', description: 'Principle 2' },
+            { id: 'manifesto-3', title: '3', type: 'item', description: 'Principle 3' },
+            { id: 'manifesto-4', title: '4', type: 'item', description: 'Principle 4' },
+            { id: 'manifesto-5', title: '5', type: 'item', description: 'Principle 5' },
+            { id: 'manifesto-6', title: '6', type: 'item', description: 'Principle 6' },
           ],
         },
         {
-          id: 'after-hours',
-          title: '5-9 After My 9-5',
+          id: 'skills',
+          title: 'Skills',
           type: 'folder',
           children: [
-            {
-              id: 'hobby-1',
-              title: 'Photography',
-              type: 'item',
-              description: 'Capturing moments through the lens.',
-              gifUrl: '/images/photography.gif',
-            },
-            {
-              id: 'hobby-2',
-              title: 'Gaming',
-              type: 'item',
-              description: 'Exploring virtual worlds.',
-              gifUrl: '/images/gaming.gif',
-            },
-            {
-              id: 'hobby-3',
-              title: 'Music',
-              type: 'item',
-              description: 'Creating beats and melodies.',
-              gifUrl: '/images/music.gif',
-            },
+            { id: 'skill-1', title: '1', type: 'item', description: 'Skill area 1' },
+            { id: 'skill-2', title: '2', type: 'item', description: 'Skill area 2' },
+            { id: 'skill-3', title: '3', type: 'item', description: 'Skill area 3' },
+            { id: 'skill-4', title: '4', type: 'item', description: 'Skill area 4' },
+            { id: 'skill-5', title: '5', type: 'item', description: 'Skill area 5' },
+            { id: 'skill-6', title: '6', type: 'item', description: 'Skill area 6' },
+          ],
+        },
+        {
+          id: 'testimonials',
+          title: 'Testimonials',
+          type: 'folder',
+          children: [
+            { id: 'testimonial-1', title: '1', type: 'item', description: 'Testimonial 1' },
+            { id: 'testimonial-2', title: '2', type: 'item', description: 'Testimonial 2' },
+            { id: 'testimonial-3', title: '3', type: 'item', description: 'Testimonial 3' },
+            { id: 'testimonial-4', title: '4', type: 'item', description: 'Testimonial 4' },
+            { id: 'testimonial-5', title: '5', type: 'item', description: 'Testimonial 5' },
+            { id: 'testimonial-6', title: '6', type: 'item', description: 'Testimonial 6' },
           ],
         },
       ],
@@ -244,45 +177,75 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     {
       id: 'resume',
       name: 'Resume',
-      icon: 'document',
+      icon: 'resume',
       items: [
         {
           id: 'resume-pdf',
           title: 'Download Resume',
           type: 'resume',
+          subtitle: 'Open PDF in new tab',
         },
       ],
     },
-  ],
+    {
+      id: 'music',
+      name: 'Music',
+      icon: 'music',
+      items: [
+        { id: 'song-1', title: 'Song 1', type: 'item' },
+        { id: 'song-2', title: 'Song 2', type: 'item' },
+        { id: 'song-3', title: 'Song 3', type: 'item' },
+        { id: 'song-4', title: 'Song 4', type: 'item' },
+        { id: 'song-5', title: 'Song 5', type: 'item' },
+        { id: 'song-6', title: 'Song 6', type: 'item' },
+        { id: 'song-7', title: 'Song 7', type: 'item' },
+        { id: 'song-8', title: 'Song 8', type: 'item' },
+        { id: 'song-9', title: 'Song 9', type: 'item' },
+        { id: 'song-10', title: 'Song 10', type: 'item' },
+      ],
+    },
+    {
+      id: 'gallery',
+      name: 'Gallery',
+      icon: 'gallery',
+      items: [
+        { id: 'gallery-1', title: 'Photo/Video 1', type: 'item' },
+        { id: 'gallery-2', title: 'Photo/Video 2', type: 'item' },
+        { id: 'gallery-3', title: 'Photo/Video 3', type: 'item' },
+        { id: 'gallery-4', title: 'Photo/Video 4', type: 'item' },
+        { id: 'gallery-5', title: 'Photo/Video 5', type: 'item' },
+        { id: 'gallery-6', title: 'Photo/Video 6', type: 'item' },
+        { id: 'gallery-7', title: 'Photo/Video 7', type: 'item' },
+        { id: 'gallery-8', title: 'Photo/Video 8', type: 'item' },
+        { id: 'gallery-9', title: 'Photo/Video 9', type: 'item' },
+        { id: 'gallery-10', title: 'Photo/Video 10', type: 'item' },
+      ],
+    },
+  ] as Category[],
   
   setCategory: (index) => {
     const { categories } = get();
-    if (index >= 0 && index < categories.length) {
-      set({ currentCategory: index, currentItem: 0 });
-    }
+    if (categories.length === 0) return;
+    const nextIndex = (index + categories.length) % categories.length;
+    set({ currentCategory: nextIndex, currentItem: 0, activeFolderIndex: null, activeFolderTitle: null, isInSubfolder: false, subfolderItems: null });
   },
   
   setItem: (index) => {
     const { categories, currentCategory, isInSubfolder, subfolderItems } = get();
     const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
-    if (items && index >= 0 && index < items.length) {
-      set({ currentItem: index });
-    }
+    if (!items || items.length === 0) return;
+    const clamped = Math.max(0, Math.min(index, items.length - 1));
+    set({ currentItem: clamped });
   },
   
   navigateLeft: () => {
-    const { currentCategory, isInSubfolder } = get();
-    
-    // If in subfolder, go back to main category
+    const { currentCategory, isInSubfolder, categories } = get();
     if (isInSubfolder) {
-      set({ isInSubfolder: false, subfolderItems: null, currentItem: 0 });
+      set({ isInSubfolder: false, subfolderItems: null, currentItem: 0, activeFolderIndex: null, activeFolderTitle: null });
       return;
     }
-    
-    // Otherwise navigate to previous category
-    if (currentCategory > 0) {
-      set({ currentCategory: currentCategory - 1, currentItem: 0 });
-    }
+    const prev = (currentCategory - 1 + categories.length) % categories.length;
+    set({ currentCategory: prev, currentItem: 0, activeFolderIndex: null, activeFolderTitle: null, subfolderItems: null });
   },
   
   navigateRight: () => {
@@ -291,38 +254,28 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     // If in subfolder, don't navigate categories
     if (isInSubfolder) return;
     
-    // Check if current item is a folder - if so, open it
     const items = categories[currentCategory]?.items;
     const item = items?.[currentItem];
     
-    if (item && 'type' in item && item.type === 'folder' && 'children' in item) {
-      // Open the folder
+    if (item && item.type === 'folder' && item.children) {
       set({ 
         isInSubfolder: true, 
-        subfolderItems: item.children as AboutItem[], 
-        currentItem: 0 
+        subfolderItems: item.children as XMBChildItem[], 
+        currentItem: 0,
+        activeFolderIndex: currentItem,
+        activeFolderTitle: item.title,
       });
       return;
     }
     
-    // Otherwise navigate to next category
-    if (currentCategory < categories.length - 1) {
-      set({ currentCategory: currentCategory + 1, currentItem: 0 });
-    }
+    const next = (currentCategory + 1) % categories.length;
+    set({ currentCategory: next, currentItem: 0, activeFolderIndex: null, activeFolderTitle: null, subfolderItems: null });
   },
   
   navigateUp: () => {
     const { currentItem, isInSubfolder, subfolderItems, currentCategory, categories } = get();
-    
-    // If in subfolder, navigate within subfolder items
-    if (isInSubfolder && subfolderItems) {
-      if (currentItem > 0) {
-        set({ currentItem: currentItem - 1 });
-      }
-      return;
-    }
-    
-    // Otherwise navigate in main category items
+    const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
+    if (!items || items.length === 0) return;
     if (currentItem > 0) {
       set({ currentItem: currentItem - 1 });
     }
@@ -331,49 +284,66 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   navigateDown: () => {
     const { currentItem, currentCategory, categories, isInSubfolder, subfolderItems } = get();
     const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
-    
-    if (items && currentItem < items.length - 1) {
+    if (!items || items.length === 0) return;
+    if (currentItem < items.length - 1) {
       set({ currentItem: currentItem + 1 });
     }
   },
   
   selectItem: () => {
-    const { currentCategory, currentItem, categories, isInSubfolder, subfolderItems } = get();
+    const { currentCategory, currentItem, categories, isInSubfolder, subfolderItems, activeFolderIndex } = get();
     const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
     const item = items?.[currentItem];
     
     if (!item) return;
     
-    // Handle case studies
-    if ('content' in item && item.content) {
+    // Case study content
+    if (item.type === 'caseStudy' && item.content) {
       set({ expandedContent: item as CaseStudy });
       return;
     }
     
-    // Handle folders
-    if ('type' in item && item.type === 'folder' && 'children' in item) {
+    // Folders
+    if (item.type === 'folder' && item.children) {
+      const parentIndex = isInSubfolder ? activeFolderIndex : currentItem;
       set({ 
         isInSubfolder: true, 
-        subfolderItems: item.children as AboutItem[], 
-        currentItem: 0 
+        subfolderItems: item.children as XMBChildItem[], 
+        currentItem: 0,
+        activeFolderIndex: parentIndex ?? currentItem,
+        activeFolderTitle: item.title,
       });
       return;
     }
     
-    // Handle profile items
-    if ('type' in item && item.type === 'profile') {
+    // Profile items
+    if (item.type === 'profile') {
       set({ expandedAbout: item as AboutItem });
       return;
     }
     
-    // Handle resume download
-    if ('type' in item && item.type === 'resume') {
+    // Resume download
+    if (item.type === 'resume') {
       window.open('/Mahanetran Murali Narayanan_Resume.pdf', '_blank');
       return;
     }
+
+    // Links
+    if (item.type === 'link' && item.url) {
+      window.open(item.url, '_blank');
+      return;
+    }
+
+    // Action toggles (e.g., mute)
+    if (item.type === 'action') {
+      if (item.id === 'toggle-audio') {
+        set((state) => ({ isMuted: !state.isMuted }));
+      }
+      return;
+    }
     
-    // Handle items (manifesto items, 5-9 After 9-5 items, etc.)
-    if ('type' in item && item.type === 'item') {
+    // Generic items
+    if (item.type === 'item' || item.type === 'setting') {
       set({ expandedAbout: item as AboutItem });
       return;
     }

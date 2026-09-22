@@ -77,3 +77,13 @@ export default function PSPModel({ scale = 2.5, isMobile = false }: PSPModelProp
 useGLTF.preload('/models/sony_psp.glb');
 
 
+
+
+
+
+
+
+
+
+
+

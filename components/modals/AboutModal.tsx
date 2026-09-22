@@ -3,7 +3,8 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { usePortfolioStore, type AboutItem } from '@/stores/portfolioStore';
+import { usePortfolioStore } from '@/stores/portfolioStore';
+import type { AboutItem } from '@/types/xmb';
 import { useAudio } from '@/hooks/useAudio';
 
 export default function AboutModal() {

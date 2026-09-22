@@ -12,3 +12,6 @@ Thumbs.db
 # Large media files (optional - remove lines if you want to include them)
 *.mp4
 videoplayback.mp4
+
+# TypeScript build artifacts
+*.tsbuildinfo
