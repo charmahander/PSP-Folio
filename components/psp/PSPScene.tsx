@@ -9,6 +9,27 @@ import XMBInterface from '../xmb/XMBInterface';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import { useAudio } from '@/hooks/useAudio';
 
+// The mockup's SVG viewBox. Hit areas are expressed in these coordinates and
+// converted to percentages, so they track the artwork at any size.
+const MOCKUP_W = 1026;
+const MOCKUP_H = 455;
+const MOCKUP_ASPECT = MOCKUP_W / MOCKUP_H;
+
+/** Device width, clamped by height so the artwork is never letterboxed inside its box. */
+const DEVICE_WIDTH = `min(90vw, ${(90 * MOCKUP_ASPECT).toFixed(3)}vh)`;
+
+/** Centres a hit area on a point in SVG coordinates, sized to the real control. */
+function hitArea(cx: number, cy: number, w: number, h: number): React.CSSProperties {
+  return {
+    left: `${((cx / MOCKUP_W) * 100).toFixed(3)}%`,
+    top: `${((cy / MOCKUP_H) * 100).toFixed(3)}%`,
+    width: `${((w / MOCKUP_W) * 100).toFixed(3)}%`,
+    height: `${((h / MOCKUP_H) * 100).toFixed(3)}%`,
+    transform: 'translate(-50%, -50%)',
+    WebkitTapHighlightColor: 'transparent',
+  };
+}
+
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -83,91 +104,81 @@ export default function PSPScene() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
         style={{
-          width: '90vw',
-          maxHeight: '90vh',
+          width: DEVICE_WIDTH,
+          aspectRatio: `${MOCKUP_W} / ${MOCKUP_H}`,
         }}
       >
         <Image
           src="/psp-mockup.svg"
           alt="PSP 1000 Mockup"
-          width={2052}
-          height={910}
-          className="relative z-0 w-full h-auto"
-          style={{
-            maxHeight: '90vh',
-            objectFit: 'contain',
-          }}
+          width={MOCKUP_W}
+          height={MOCKUP_H}
+          className="relative z-0 w-full h-full"
+          style={{ display: 'block' }}
           priority
           unoptimized
         />
         
-        {/* Interactive PSP Buttons Overlay - positioned to match actual button locations */}
-        {/* SVG is 1026x455, D-pad center: x=117 y=196 r=80.5, Action buttons center: x=918 y=195 r=68.5 */}
+        {/* Interactive button overlay. Geometry taken from psp-mockup.svg: the
+            D-pad cross bars are 54 units wide, the action buttons are r=27.5. */}
         <div className="absolute inset-0 z-30 pointer-events-none">
-          {/* D-pad buttons (left side) - center at 11.4%, 43% */}
-          {/* D-pad Up */}
           <button
             onClick={() => {
               playNavigate();
               navigateUp();
             }}
-            className="absolute w-[4%] h-[10%] bg-transparent hover:bg-white/5 active:bg-white/10 rounded transition-colors pointer-events-auto"
-            style={{ left: '11.4%', top: '28%', transform: 'translate(-50%, -50%)' }}
+            className="absolute bg-transparent pointer-events-auto"
+            style={hitArea(117, 142.75, 54, 52.5)}
             aria-label="Navigate Up"
           />
-          
-          {/* D-pad Down */}
+
           <button
             onClick={() => {
               playNavigate();
               navigateDown();
             }}
-            className="absolute w-[4%] h-[10%] bg-transparent hover:bg-white/5 active:bg-white/10 rounded transition-colors pointer-events-auto"
-            style={{ left: '11.4%', top: '58%', transform: 'translate(-50%, -50%)' }}
+            className="absolute bg-transparent pointer-events-auto"
+            style={hitArea(117, 249.25, 54, 52.5)}
             aria-label="Navigate Down"
           />
-          
-          {/* D-pad Left */}
+
           <button
             onClick={() => {
               playNavigate();
               navigateLeft();
             }}
-            className="absolute w-[4%] h-[10%] bg-transparent hover:bg-white/5 active:bg-white/10 rounded transition-colors pointer-events-auto"
-            style={{ left: '4%', top: '43%', transform: 'translate(-50%, -50%)' }}
+            className="absolute bg-transparent pointer-events-auto"
+            style={hitArea(64.5, 196, 51, 54)}
             aria-label="Navigate Left"
           />
-          
-          {/* D-pad Right */}
+
           <button
             onClick={() => {
               playNavigate();
               navigateRight();
             }}
-            className="absolute w-[4%] h-[10%] bg-transparent hover:bg-white/5 active:bg-white/10 rounded transition-colors pointer-events-auto"
-            style={{ left: '19%', top: '43%', transform: 'translate(-50%, -50%)' }}
+            className="absolute bg-transparent pointer-events-auto"
+            style={hitArea(169, 196, 50, 54)}
             aria-label="Navigate Right"
           />
-          
-          {/* X button (bottom of diamond) - center at 89.5%, 43% */}
+
           <button
             onClick={() => {
               playSelect();
               selectItem();
             }}
-            className="absolute w-[3.5%] h-[8%] bg-transparent hover:bg-white/5 active:bg-white/10 rounded-full transition-colors pointer-events-auto"
-            style={{ left: '89.5%', top: '58%', transform: 'translate(-50%, -50%)' }}
+            className="absolute bg-transparent rounded-full pointer-events-auto"
+            style={hitArea(918, 254.5, 55, 55)}
             aria-label="Select (X)"
           />
-          
-          {/* Circle/O button (right of diamond) */}
+
           <button
             onClick={() => {
               playBack();
               goBack();
             }}
-            className="absolute w-[3.5%] h-[8%] bg-transparent hover:bg-white/5 active:bg-white/10 rounded-full transition-colors pointer-events-auto"
-            style={{ left: '96%', top: '43%', transform: 'translate(-50%, -50%)' }}
+            className="absolute bg-transparent rounded-full pointer-events-auto"
+            style={hitArea(977.5, 195.5, 55, 55)}
             aria-label="Back (Circle)"
           />
         </div>
@@ -195,8 +206,10 @@ export default function PSPScene() {
                 inset 0 -2px 6px rgba(0, 0, 0, 0.5)
               `,
               border: '1px solid rgba(0, 0, 0, 0.3)',
-              // Dynamic font size - scales continuously with viewport width
-              fontSize: '1.4vw',
+              // The XMB is laid out in `em` and is 31em wide; the screen is 62%
+              // of the device, so 0.62/31 = 0.02 keeps it locked to the device.
+              fontSize: `calc(${DEVICE_WIDTH} * 0.02)`,
+              WebkitTapHighlightColor: 'transparent',
             }}
             onClick={handleScreenClick}
             {...swipeHandlers}
