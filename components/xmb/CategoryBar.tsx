@@ -18,6 +18,7 @@ const categoryIconPaths: { [key: string]: string } = {
   resume: '/icons/work.png',
   music: '/icons/music.png',
   gallery: '/icons/camera.png',
+  settings: '/icons/settings.png',
 };
 
 export default function CategoryBar() {

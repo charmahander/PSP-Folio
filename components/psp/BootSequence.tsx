@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import WaveBackground from '../xmb/WaveBackground';
-import { THEMES } from '../xmb/themes';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function BootSequence() {
-  const { finishBooting, themeIndex } = usePortfolioStore();
-  const theme = THEMES[themeIndex] ?? THEMES[0];
+  const { finishBooting } = usePortfolioStore();
+  const theme = useTheme();
   const [phase, setPhase] = useState<'wave' | 'name' | 'done'>('wave');
 
   useEffect(() => {

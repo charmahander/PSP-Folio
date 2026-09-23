@@ -125,10 +125,20 @@ export default function ItemList() {
     isInSubfolder,
     subfolderItems,
     goBack,
+    setTheme,
   } = usePortfolioStore();
   const { playNavigate, playSelect, playBack } = useAudio();
 
   const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
+
+  // A real PSP repaints the menu as the cursor moves over a colour, before you
+  // confirm it. Must run before the early return to keep hook order stable.
+  const highlightedId = items?.[currentItem]?.id;
+  useEffect(() => {
+    if (highlightedId && /^theme-\d+$/.test(highlightedId)) {
+      setTheme(Number(highlightedId.slice('theme-'.length)));
+    }
+  }, [highlightedId, setTheme]);
 
   if (!items || items.length === 0) return null;
 

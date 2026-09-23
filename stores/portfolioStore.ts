@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { Category, XMBChildItem, XMBItem, CaseStudy, AboutItem } from '@/types/xmb';
+import { THEME_OPTIONS, BY_MONTH_INDEX } from '@/components/xmb/themes';
 
 interface PortfolioState {
   // Navigation state
@@ -43,7 +44,8 @@ interface PortfolioState {
 }
 
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({
-  currentCategory: 0,
+  // Settings sits leftmost as it does on a real PSP, so open on Games instead.
+  currentCategory: 1,
   currentItem: 0,
   hasStarted: false,
   isBooting: true,
@@ -57,6 +59,28 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   isMuted: false,
   
   categories: [
+    {
+      id: 'settings',
+      name: 'Settings',
+      icon: 'settings',
+      items: [
+        {
+          id: 'theme-settings',
+          title: 'Theme Settings',
+          type: 'folder',
+          subtitle: 'Colour of the home menu',
+          children: THEME_OPTIONS.map((option, index) => ({
+            id: `theme-${index}`,
+            title: option.name,
+            type: 'setting' as const,
+            subtitle:
+              index === BY_MONTH_INDEX
+                ? 'Changes automatically each month'
+                : undefined,
+          })),
+        },
+      ],
+    },
     {
       id: 'game',
       name: 'Games',
@@ -348,6 +372,12 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
       return;
     }
     
+    // Theme colours already applied while highlighted, so this just confirms.
+    if (/^theme-\d+$/.test(item.id)) {
+      set({ themeIndex: Number(item.id.slice('theme-'.length)) });
+      return;
+    }
+
     // Generic items
     if (item.type === 'item' || item.type === 'setting') {
       set({ expandedAbout: item as AboutItem });

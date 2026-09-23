@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePortfolioStore } from '@/stores/portfolioStore';
-import { THEMES, resolveWaves, type WavePalette } from './themes';
+import { useTheme } from '@/hooks/useTheme';
+import type { WavePalette } from './themes';
 
 type Particle = {
   x: number;
@@ -15,27 +16,19 @@ type Particle = {
 
 export default function WaveBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { isBooting, themeIndex } = usePortfolioStore();
+  const isBooting = usePortfolioStore((s) => s.isBooting);
+  const theme = useTheme();
   const animationRef = useRef<number>();
   const expansionRef = useRef(0); // 0 = compressed, 1 = fully expanded
   const targetExpansionRef = useRef(0);
   const particlesRef = useRef<Particle[]>([]);
-  const [now, setNow] = useState<Date>(() => new Date());
-
-  // Update palette over time (minute-level is enough for subtle shifts)
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000);
-    return () => clearInterval(id);
-  }, []);
 
   // Read through a ref so switching theme repaints on the next frame instead of
   // restarting the animation, which would reset the particles and expansion.
-  const paletteRef = useRef<WavePalette>(
-    resolveWaves(THEMES[0], new Date())
-  );
+  const paletteRef = useRef<WavePalette>(theme.waves);
   useEffect(() => {
-    paletteRef.current = resolveWaves(THEMES[themeIndex] ?? THEMES[0], now);
-  }, [themeIndex, now]);
+    paletteRef.current = theme.waves;
+  }, [theme]);
 
   useEffect(() => {
     targetExpansionRef.current = isBooting ? 0 : 1;

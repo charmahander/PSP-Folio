@@ -4,12 +4,12 @@ import { useCallback, useEffect } from 'react';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import { useAudio } from '@/hooks/useAudio';
 import WaveBackground from '../xmb/WaveBackground';
-import { THEMES } from '../xmb/themes';
+import { useTheme } from '@/hooks/useTheme';
 
 export default function StartGate() {
-  const { start, themeIndex } = usePortfolioStore();
+  const { start } = usePortfolioStore();
   const { playBoot } = useAudio();
-  const theme = THEMES[themeIndex] ?? THEMES[0];
+  const theme = useTheme();
 
   // Browsers only allow audio once the page has a user gesture, and Safari
   // wants the play() call inside the handler's own call stack - so the jingle
