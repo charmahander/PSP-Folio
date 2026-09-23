@@ -3,7 +3,7 @@
 export default function IntroText() {
   return (
     <div
-      className="font-rodin text-center px-6"
+      className="font-rodin text-center px-6 balanced-text"
       style={{
         marginTop: '80px',
         maxWidth: '660px',
@@ -13,8 +13,10 @@ export default function IntroText() {
       }}
     >
       <p>
+        {'Welcome to '}
+        <strong style={{ fontWeight: 700 }}>PSPFolio</strong>
         {
-          'Welcome to PSPFolio: a fun reimagining of my old PSP 1000 if it was my portfolio/website itself (as if the device IS the folio!).'
+          ': a fun reimagining of my old PSP 1000 if it was my portfolio/website itself (as if the device IS the folio!).'
         }
       </p>
       <p style={{ marginTop: '14px' }}>

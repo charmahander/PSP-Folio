@@ -17,6 +17,11 @@ const MOCKUP_W = 1026;
 const MOCKUP_H = 455;
 const MOCKUP_ASPECT = MOCKUP_W / MOCKUP_H;
 
+/** The screen cut-out's own rect inside psp-mockup.svg. */
+const SCREEN_RECT = { x: 216, y: 41, w: 594, h: 340 };
+
+const pct = (value: number, total: number) => `${((value / total) * 100).toFixed(4)}%`;
+
 /** Room kept below the device for the 80px gap and the intro copy. */
 const CONTENT_RESERVE_PX = 305;
 
@@ -226,27 +231,25 @@ export default function PSPScene() {
           <div
             ref={screenRef}
             className="absolute cursor-pointer select-none z-20"
+            data-psp-screen=""
             style={{
-              // Positioned to match the white rectangle in the mockup
-              top: '45.5%',
-              left: '50%',
-              transform: 'translate(-50%, calc(-50% + 5px)) scale(0.95)',
-              transformOrigin: 'center center',
-              // Scale to fill white rectangle
-              width: '62%',
-              height: 'calc(79% + 2px)',
-              aspectRatio: '594 / 340',
+              // Straight from the cut-out's own coordinates. It used to be a
+              // 62% box nudged by a scale and a few fixed pixels, which drifted
+              // off the artwork as the device shrank and let the placeholder
+              // show through as a white seam on small screens.
+              left: pct(SCREEN_RECT.x, MOCKUP_W),
+              top: pct(SCREEN_RECT.y, MOCKUP_H),
+              width: pct(SCREEN_RECT.w, MOCKUP_W),
+              height: pct(SCREEN_RECT.h, MOCKUP_H),
               background: theme.background,
-              borderRadius: '2px',
               overflow: 'hidden',
               boxShadow: `
                 inset 0 2px 6px rgba(255, 255, 255, 0.15),
                 inset 0 -2px 6px rgba(0, 0, 0, 0.5)
               `,
-              border: '1px solid rgba(0, 0, 0, 0.3)',
-              // The XMB is laid out in `em` and is 31em wide; the screen is 62%
-              // of the device, so 0.62/31 = 0.02 keeps it locked to the device.
-              fontSize: `calc(${DEVICE_WIDTH} * 0.02)`,
+              // The XMB is laid out in `em` and is 31em wide, so dividing the
+              // screen's share of the device by 31 keeps it locked to the case.
+              fontSize: `calc(${DEVICE_WIDTH} * ${(SCREEN_RECT.w / MOCKUP_W / 31).toFixed(7)})`,
               WebkitTapHighlightColor: 'transparent',
             }}
             onClick={handleScreenClick}
@@ -272,10 +275,10 @@ export default function PSPScene() {
         )}
       </motion.div>
 
-      <IntroText />
-
-      {/* Mobile touch controls - optional, swipe also works now */}
+      {/* In flow rather than pinned to the bottom, which overlapped the copy */}
       {isMobile && <MobileTouchControls />}
+
+      <IntroText />
     </div>
   );
 }
@@ -291,7 +294,7 @@ function MobileTouchControls() {
   } = useXMBNavigation();
 
   return (
-    <div className="absolute bottom-20 left-0 right-0 flex justify-center items-center gap-4 z-30">
+    <div className="flex justify-center items-center gap-4 z-30" style={{ marginTop: '28px' }}>
       <div className="relative w-24 h-24">
         <button onClick={navigateUp} className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-lg flex items-center justify-center">
           <svg className="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">

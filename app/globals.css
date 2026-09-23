@@ -69,6 +69,11 @@ body {
   background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
+/* Even out line lengths so no line is left short and ragged */
+.balanced-text p {
+  text-wrap: balance;
+}
+
 /* Custom scrollbar for XMB content */
 .xmb-scrollable::-webkit-scrollbar {
   width: 4px;
