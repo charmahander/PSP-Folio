@@ -74,6 +74,19 @@ body {
   text-wrap: balance;
 }
 
+/* Phones sit the copy close under the device; wider screens get more air */
+.intro-copy {
+  margin-top: 24px;
+  font-size: 15px;
+}
+
+@media (min-width: 768px) {
+  .intro-copy {
+    margin-top: 80px;
+    font-size: 14px;
+  }
+}
+
 /* Custom scrollbar for XMB content */
 .xmb-scrollable::-webkit-scrollbar {
   width: 4px;

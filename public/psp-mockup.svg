@@ -51,7 +51,7 @@
 <rect x="841" y="97" width="26" height="13" rx="6.5" fill="#1E1E1E"/>
 <rect x="841.5" y="97.5" width="25" height="12" rx="6" stroke="url(#paint18_linear_24_999)" stroke-opacity="0.3"/>
 <g filter="url(#filter3_n_24_999)">
-<ellipse cx="123.5" cy="334" rx="45" ry="44.5" fill="url(#nub_recess)"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="url(#nub_body)"/><ellipse cx="123.5" cy="332.5" rx="30" ry="29.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.055" stroke-width="1.1"/><ellipse cx="123.5" cy="332.5" rx="22.5" ry="22.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.05" stroke-width="1.1"/><ellipse cx="123.5" cy="332.5" rx="15" ry="14.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.045" stroke-width="1.1"/><ellipse cx="123.5" cy="332.5" rx="9.5" ry="9.4" fill="url(#nub_dish)"/><ellipse cx="110" cy="317.5" rx="18" ry="12.5" transform="rotate(-24 110 317.5)" fill="url(#nub_spec)"/>
+<ellipse cx="123.5" cy="334.5" rx="44" ry="43.5" fill="url(#nub_recess)"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="#191B1E"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="url(#nub_waffle)"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="url(#nub_light)"/><ellipse cx="123.5" cy="332.5" rx="36.4" ry="35.9" fill="none" stroke="url(#nub_rim)" stroke-width="2.4"/>
 </g>
 <g filter="url(#filter4_i_24_999)">
 <circle cx="998.5" cy="304.5" r="5.5" fill="url(#paint19_radial_24_999)"/>
@@ -5629,26 +5629,32 @@
     <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
 </linearGradient>
 
+
+
+
+
+
+<pattern id="nub_waffle" width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(45 123.5 332.5)">
+    <path d="M0 0.35 H3.4" stroke="#FFFFFF" stroke-opacity="0.17" stroke-width="0.7"/>
+    <path d="M0.35 0 V3.4" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="0.7"/>
+    <path d="M0 2.75 H3.4" stroke="#000000" stroke-opacity="0.55" stroke-width="0.75"/>
+    <path d="M2.75 0 V3.4" stroke="#000000" stroke-opacity="0.48" stroke-width="0.75"/>
+</pattern>
 <radialGradient id="nub_recess" cx="0.5" cy="0.5" r="0.5">
-    <stop offset="0.7" stop-color="#000000" stop-opacity="0.78"/>
-    <stop offset="0.87" stop-color="#000000" stop-opacity="0.34"/>
+    <stop offset="0.72" stop-color="#000000" stop-opacity="0.8"/>
+    <stop offset="0.88" stop-color="#000000" stop-opacity="0.32"/>
     <stop offset="1" stop-color="#000000" stop-opacity="0"/>
 </radialGradient>
-<radialGradient id="nub_body" cx="0.34" cy="0.29" r="0.8">
-    <stop offset="0" stop-color="#5E636A"/>
-    <stop offset="0.4" stop-color="#3B3F45"/>
-    <stop offset="0.76" stop-color="#23262A"/>
-    <stop offset="1" stop-color="#141619"/>
-</radialGradient>
-<radialGradient id="nub_dish" cx="0.5" cy="0.4" r="0.62">
-    <stop offset="0" stop-color="#121417"/>
-    <stop offset="0.72" stop-color="#26292E"/>
-    <stop offset="1" stop-color="#383C42"/>
-</radialGradient>
-<radialGradient id="nub_spec" cx="0.5" cy="0.5" r="0.5">
-    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.34"/>
-    <stop offset="0.6" stop-color="#FFFFFF" stop-opacity="0.08"/>
-    <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
-</radialGradient>
+<linearGradient id="nub_light" x1="0.1" y1="0" x2="0.85" y2="1">
+    <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.13"/>
+    <stop offset="0.42" stop-color="#FFFFFF" stop-opacity="0.02"/>
+    <stop offset="0.7" stop-color="#000000" stop-opacity="0.07"/>
+    <stop offset="1" stop-color="#000000" stop-opacity="0.24"/>
+</linearGradient>
+<linearGradient id="nub_rim" x1="0.2" y1="0" x2="0.5" y2="1">
+    <stop offset="0" stop-color="#7A8087" stop-opacity="0.8"/>
+    <stop offset="0.45" stop-color="#303337" stop-opacity="0.55"/>
+    <stop offset="1" stop-color="#000000" stop-opacity="0.75"/>
+</linearGradient>
 </defs>
 </svg>

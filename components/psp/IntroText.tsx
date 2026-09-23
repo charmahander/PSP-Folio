@@ -3,12 +3,10 @@
 export default function IntroText() {
   return (
     <div
-      className="font-rodin text-center px-6 balanced-text"
+      className="font-rodin text-center px-6 balanced-text intro-copy"
       style={{
-        marginTop: '80px',
         maxWidth: '660px',
         color: '#5b6167',
-        fontSize: '14px',
         lineHeight: 1.65,
       }}
     >

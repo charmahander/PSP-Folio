@@ -40,25 +40,8 @@ function hitArea(cx: number, cy: number, w: number, h: number): React.CSSPropert
   };
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  return isMobile;
-}
-
 export default function PSPScene() {
   useXMBNavigation();
-  const isMobile = useIsMobile();
   const { isBooting, hasStarted, start, adjustVolume, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
   const { playNavigate, playSelect, playBack, playBoot } = useAudio();
   const theme = useTheme();
@@ -275,56 +258,8 @@ export default function PSPScene() {
         )}
       </motion.div>
 
-      {/* In flow rather than pinned to the bottom, which overlapped the copy */}
-      {isMobile && <MobileTouchControls />}
 
       <IntroText />
-    </div>
-  );
-}
-
-function MobileTouchControls() {
-  const { 
-    navigateLeft, 
-    navigateRight, 
-    navigateUp, 
-    navigateDown, 
-    selectItem, 
-    goBack 
-  } = useXMBNavigation();
-
-  return (
-    <div className="flex justify-center items-center gap-4 z-30" style={{ marginTop: '28px' }}>
-      <div className="relative w-24 h-24">
-        <button onClick={navigateUp} className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-lg flex items-center justify-center">
-          <svg className="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <button onClick={navigateDown} className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-lg flex items-center justify-center">
-          <svg className="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <button onClick={navigateLeft} className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-lg flex items-center justify-center">
-          <svg className="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <button onClick={navigateRight} className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/10 hover:bg-white/20 active:bg-white/30 rounded-lg flex items-center justify-center">
-          <svg className="w-4 h-4 text-white/70" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-          </svg>
-        </button>
-      </div>
-      <div className="flex gap-3">
-        <button onClick={goBack} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 flex items-center justify-center">
-          <span className="text-white/70 text-lg">○</span>
-        </button>
-        <button onClick={selectItem} className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 flex items-center justify-center">
-          <span className="text-white/70 text-lg">✕</span>
-        </button>
-      </div>
     </div>
   );
 }
