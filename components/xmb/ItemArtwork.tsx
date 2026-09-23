@@ -1,7 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
+
+/** How long the cursor must rest on an item before its art takes the background. */
+const DWELL_MS = 2500;
 
 /**
  * A PSP shows the highlighted game's own artwork behind the menu. Only case
@@ -18,11 +22,21 @@ export default function ItemArtwork() {
       ? item.thumbnail ?? null
       : null;
 
+  // Only art the cursor has rested on is shown, so scrolling the column does
+  // not strobe a background per row. Any move clears it immediately.
+  const [settled, setSettled] = useState<string | null>(null);
+  useEffect(() => {
+    setSettled(null);
+    if (!art) return;
+    const id = setTimeout(() => setSettled(art), DWELL_MS);
+    return () => clearTimeout(id);
+  }, [art]);
+
   return (
     <AnimatePresence mode="wait">
-      {art && (
+      {settled && (
         <motion.div
-          key={art}
+          key={settled}
           className="absolute inset-0 z-0 pointer-events-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -33,7 +47,7 @@ export default function ItemArtwork() {
               faded out before it reaches the column. Project thumbnails are
               bright UI captures, so full-bleed swamps the menu. */}
           <img
-            src={art}
+            src={settled}
             alt=""
             className="absolute top-0 right-0 h-full"
             style={{
