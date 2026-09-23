@@ -56,14 +56,11 @@ const itemIconOverrides: { [key: string]: string } = {
   'project-4': '/images/projects/project-4.png',
   'project-5': '/images/projects/project-5.png',
   'gallery-1': '/images/gallery/gallery-1.png',
-  'gallery-2': '/images/gallery/gallery-2.png',
   'gallery-3': '/images/gallery/gallery-3.png',
   'gallery-4': '/images/gallery/gallery-4.png',
   'gallery-5': '/images/gallery/gallery-5.png',
   'gallery-6': '/images/gallery/gallery-6.png',
   'gallery-7': '/images/gallery/gallery-7.png',
-  'gallery-8': '/images/gallery/gallery-8.png',
-  'gallery-9': '/images/gallery/gallery-9.png',
   'gallery-10': '/images/gallery/gallery-10.png',
 };
 
