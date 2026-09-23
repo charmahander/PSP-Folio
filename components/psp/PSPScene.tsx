@@ -6,8 +6,10 @@ import { motion } from 'framer-motion';
 import { useXMBNavigation } from '@/hooks/useXMBNavigation';
 import { useSwipe } from '@/hooks/useSwipe';
 import XMBInterface from '../xmb/XMBInterface';
+import ThemeSwitcher from './ThemeSwitcher';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import { useAudio } from '@/hooks/useAudio';
+import { THEMES } from '../xmb/themes';
 
 // The mockup's SVG viewBox. Hit areas are expressed in these coordinates and
 // converted to percentages, so they track the artwork at any size.
@@ -15,8 +17,11 @@ const MOCKUP_W = 1026;
 const MOCKUP_H = 455;
 const MOCKUP_ASPECT = MOCKUP_W / MOCKUP_H;
 
+/** Vertical room kept free below the device for the theme orbs and their gap. */
+const CONTROLS_RESERVE_PX = 110;
+
 /** Device width, clamped by height so the artwork is never letterboxed inside its box. */
-const DEVICE_WIDTH = `min(90vw, ${(90 * MOCKUP_ASPECT).toFixed(3)}vh)`;
+const DEVICE_WIDTH = `min(90vw, calc((90vh - ${CONTROLS_RESERVE_PX}px) * ${MOCKUP_ASPECT.toFixed(5)}))`;
 
 /** Centres a hit area on a point in SVG coordinates, sized to the real control. */
 function hitArea(cx: number, cy: number, w: number, h: number): React.CSSProperties {
@@ -49,8 +54,9 @@ function useIsMobile() {
 export default function PSPScene() {
   useXMBNavigation();
   const isMobile = useIsMobile();
-  const { isBooting, hasStarted, start, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
+  const { isBooting, hasStarted, start, themeIndex, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
   const { playNavigate, playSelect, playBack, playBoot } = useAudio();
+  const theme = THEMES[themeIndex] ?? THEMES[0];
   const pspRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
 
@@ -95,7 +101,7 @@ export default function PSPScene() {
   }, [selectItem, playSelect]);
 
   return (
-    <div className="w-full h-full relative flex items-center justify-center">
+    <div className="w-full h-full relative flex flex-col items-center justify-center">
       {/* PSP Mockup and Screen UI - 90% of screen */}
       <motion.div 
         ref={pspRef}
@@ -182,7 +188,7 @@ export default function PSPScene() {
             aria-label="Back (Circle)"
           />
 
-          {/* START: the only control the gate prompt points at, so it has to work */}
+          {/* START: the control the gate prompt points at, so it has to work */}
           <button
             onClick={() => {
               if (hasStarted) return;
@@ -190,7 +196,7 @@ export default function PSPScene() {
               start();
             }}
             className="absolute bg-transparent pointer-events-auto"
-            style={hitArea(802, 409.5, 59, 28)}
+            style={{ ...hitArea(802, 409.5, 59, 28), cursor: hasStarted ? 'default' : 'pointer' }}
             aria-label="Start"
           />
         </div>
@@ -210,7 +216,7 @@ export default function PSPScene() {
               width: '62%',
               height: 'calc(79% + 2px)',
               aspectRatio: '594 / 340',
-              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+              background: theme.background,
               borderRadius: '2px',
               overflow: 'hidden',
               boxShadow: `
@@ -245,6 +251,8 @@ export default function PSPScene() {
           </div>
         )}
       </motion.div>
+
+      <ThemeSwitcher />
 
       {/* Mobile touch controls - optional, swipe also works now */}
       {isMobile && <MobileTouchControls />}

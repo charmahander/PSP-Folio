@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import WaveBackground from '../xmb/WaveBackground';
+import { THEMES } from '../xmb/themes';
 
 export default function BootSequence() {
-  const { finishBooting } = usePortfolioStore();
+  const { finishBooting, themeIndex } = usePortfolioStore();
+  const theme = THEMES[themeIndex] ?? THEMES[0];
   const [phase, setPhase] = useState<'wave' | 'name' | 'done'>('wave');
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function BootSequence() {
           transition={{ duration: 0.5 }}
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+            background: theme.background,
           }}
         >
           {/* Wave background animation - particles that animate outward */}

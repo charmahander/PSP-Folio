@@ -1,14 +1,15 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import { useAudio } from '@/hooks/useAudio';
 import WaveBackground from '../xmb/WaveBackground';
+import { THEMES } from '../xmb/themes';
 
 export default function StartGate() {
-  const { start } = usePortfolioStore();
+  const { start, themeIndex } = usePortfolioStore();
   const { playBoot } = useAudio();
+  const theme = THEMES[themeIndex] ?? THEMES[0];
 
   // Browsers only allow audio once the page has a user gesture, and Safari
   // wants the play() call inside the handler's own call stack - so the jingle
@@ -28,18 +29,16 @@ export default function StartGate() {
     <div
       className="absolute inset-0 cursor-pointer"
       onClick={begin}
-      style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)' }}
+      style={{ background: theme.background }}
     >
       <WaveBackground />
       <div className="absolute inset-0 flex items-center justify-center">
-        <motion.div
-          animate={{ opacity: [1, 0.3, 1] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+        <div
           className="text-white font-rodin text-center"
           style={{ fontSize: '0.85em', letterSpacing: '0.35em', whiteSpace: 'nowrap' }}
         >
           PRESS START
-        </motion.div>
+        </div>
       </div>
     </div>
   );
