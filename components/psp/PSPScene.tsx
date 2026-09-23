@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useXMBNavigation } from '@/hooks/useXMBNavigation';
 import { useSwipe } from '@/hooks/useSwipe';
 import XMBInterface from '../xmb/XMBInterface';
+import IntroText from './IntroText';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import { useAudio } from '@/hooks/useAudio';
 import { useTheme } from '@/hooks/useTheme';
@@ -16,8 +17,11 @@ const MOCKUP_W = 1026;
 const MOCKUP_H = 455;
 const MOCKUP_ASPECT = MOCKUP_W / MOCKUP_H;
 
+/** Room kept below the device for the 80px gap and the intro copy. */
+const CONTENT_RESERVE_PX = 305;
+
 /** Device width, clamped by height so the artwork is never letterboxed inside its box. */
-const DEVICE_WIDTH = `min(90vw, ${(90 * MOCKUP_ASPECT).toFixed(3)}vh)`;
+const DEVICE_WIDTH = `min(90vw, calc((90vh - ${CONTENT_RESERVE_PX}px) * ${MOCKUP_ASPECT.toFixed(5)}))`;
 
 /** Centres a hit area on a point in SVG coordinates, sized to the real control. */
 function hitArea(cx: number, cy: number, w: number, h: number): React.CSSProperties {
@@ -97,7 +101,7 @@ export default function PSPScene() {
   }, [selectItem, playSelect]);
 
   return (
-    <div className="w-full h-full relative flex items-center justify-center">
+    <div className="w-full h-full relative flex flex-col items-center justify-center">
       {/* PSP Mockup and Screen UI - 90% of screen */}
       <motion.div 
         ref={pspRef}
@@ -267,6 +271,8 @@ export default function PSPScene() {
           </div>
         )}
       </motion.div>
+
+      <IntroText />
 
       {/* Mobile touch controls - optional, swipe also works now */}
       {isMobile && <MobileTouchControls />}
