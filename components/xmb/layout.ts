@@ -1,43 +1,62 @@
 /**
- * Shared XMB geometry, in `em` relative to the screen's font-size.
+ * XMB geometry in the PSP's native 480x272 pixel grid.
  *
- * The screen sets `fontSize: 1.8vw` and its width is 55.8vw, so the screen is
- * always 31em wide regardless of viewport. Expressing every measurement in `em`
- * therefore makes the whole layout proportional to the screen, not the browser.
- * Mixing in px/rem/vw is what made the column drift: fixed and proportional
- * terms can only agree at one viewport width.
+ * Sizes come from Sony's PSP Custom Theme spec; positions and steps are
+ * measured off the project's Frame 61-64 mockups, which are authored at 483px
+ * wide. The screen element is 31em across, so one design pixel is 31/480 em -
+ * writing everything this way keeps these numbers readable against the spec
+ * while still scaling with the device. Mixing in px/rem/vw would reintroduce
+ * the drift that made the column slide as the viewport changed.
  */
 
-export const SCREEN_WIDTH_EM = 31;
+export const SCREEN_W = 480;
+export const SCREEN_H = 272;
+const SCREEN_EM = 31;
 
-export const RAIL_PADDING_EM = 1.2;
-export const CATEGORY_SLOT_EM = 5.9;
-export const CATEGORY_GAP_EM = 5;
-export const CATEGORY_STEP_EM = CATEGORY_SLOT_EM + CATEGORY_GAP_EM;
+/** Design pixels to an em string. */
+export const px = (n: number) => `${((n * SCREEN_EM) / SCREEN_W).toFixed(4)}em`;
 
-/**
- * The rail renders a leading spacer column, then the categories, and translates
- * left by one step per selected index — so the selected icon always lands here.
- */
-export const SELECTED_CATEGORY_CENTER_EM =
-  RAIL_PADDING_EM + CATEGORY_STEP_EM + CATEGORY_SLOT_EM / 2;
+// --- Horizontal category bar -------------------------------------------------
+/** Sony spec: category icons are 64 x 48. */
+export const CATEGORY_ICON_W = 64;
+export const CATEGORY_ICON_H = 48;
+/** Unselected categories shrink, as they do on hardware. */
+export const CATEGORY_UNSELECTED_SCALE = 0.72;
+export const CATEGORY_STEP = 144;
+/** Selected category sits left of centre, not in the middle. */
+export const CATEGORY_X = 167;
+export const CATEGORY_Y = 78;
+export const CATEGORY_CELL_W = 136;
+export const CATEGORY_LABEL_SIZE = 10;
+export const CATEGORY_LABEL_GAP = 5;
 
-export const ITEM_ROW_PADDING_EM = 1.05;
+// --- Vertical item column ----------------------------------------------------
+/** The column hangs off the selected category, so it shares that axis exactly. */
+export const ITEM_X = CATEGORY_X;
+/** "The selected item is always the first line under the primary row." */
+export const ITEM_Y = 168;
+export const ITEM_STEP = 71;
+/** Items above the selection clear the band the category row occupies. */
+export const ITEM_ABOVE_BAR_SKIP = 79;
 
-/** Fixed slot so icons of differing sizes still share one centre line. */
-export const ITEM_ICON_SLOT_EM = 2.4;
+/** Sony spec: first level 48 body / 64 focus, second level 32 body / 48 focus. */
+export const ITEM_ICON_FOCUS = 64;
+export const ITEM_ICON_BODY = 48;
+export const SUB_ICON_FOCUS = 48;
+export const SUB_ICON_BODY = 32;
 
-/** Derived, never tuned: keeps the column centred under the selected category. */
-export const ITEM_LIST_PADDING_EM =
-  SELECTED_CATEGORY_CENTER_EM - ITEM_ROW_PADDING_EM - ITEM_ICON_SLOT_EM / 2;
+export const ITEM_TEXT_GAP = 12;
+export const ITEM_TITLE_SIZE = 13;
+export const ITEM_SUBTITLE_SIZE = 10;
+export const ITEM_TEXT_MAX = 224;
 
-export const ITEM_LIST_WIDTH_EM = 16;
+export function itemOffsetY(offset: number): number {
+  return ITEM_Y + offset * ITEM_STEP - (offset < 0 ? ITEM_ABOVE_BAR_SKIP : 0);
+}
 
-/** Row gap between the icon slot and the text column. */
-export const ITEM_ICON_TEXT_GAP_EM = 0.75;
-
-export const ITEM_TEXT_MAX_EM =
-  ITEM_LIST_WIDTH_EM -
-  ITEM_ROW_PADDING_EM * 2 -
-  ITEM_ICON_SLOT_EM -
-  ITEM_ICON_TEXT_GAP_EM;
+// --- Status bar --------------------------------------------------------------
+/** 8px is the gutter that recurs throughout the Sony spec. */
+export const GUTTER = 8;
+export const STATUS_TEXT_SIZE = 11;
+export const STATUS_ICON = 17;
+export const STATUS_GAP = 9;

@@ -1,14 +1,20 @@
 'use client';
 
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import { useAudio } from '@/hooks/useAudio';
 import {
-  RAIL_PADDING_EM,
-  CATEGORY_SLOT_EM,
-  CATEGORY_GAP_EM,
-  CATEGORY_STEP_EM,
+  px,
+  CATEGORY_ICON_W,
+  CATEGORY_ICON_H,
+  CATEGORY_UNSELECTED_SCALE,
+  CATEGORY_STEP,
+  CATEGORY_X,
+  CATEGORY_Y,
+  CATEGORY_CELL_W,
+  CATEGORY_LABEL_SIZE,
+  CATEGORY_LABEL_GAP,
 } from './layout';
 
 // Map category icon keys to PNG files (PSP-inspired set)
@@ -33,82 +39,67 @@ export default function CategoryBar() {
   };
 
   return (
-    <div
-      className="relative w-full flex items-center justify-start z-10 overflow-hidden"
-      style={{ paddingLeft: `${RAIL_PADDING_EM}em` }}
-    >
-      {/* Horizontal category row - active pinned left */}
-      <motion.div
-        className="grid items-end"
-        style={{
-          gridAutoFlow: 'column',
-          gridAutoColumns: `${CATEGORY_SLOT_EM}em`,
-          columnGap: `${CATEGORY_GAP_EM}em`,
-          minWidth: 'max-content',
-        }}
-        animate={{ x: `${-CATEGORY_STEP_EM * currentCategory}em` }}
-        transition={{ type: 'tween', duration: 0.16, ease: 'easeOut' }}
-      >
-        {/* Leading spacer so the current category can slide left into it when advancing */}
-        <div aria-hidden style={{ width: '100%', height: '100%' }} />
+    <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+      {categories.map((category, index) => {
+        const offset = index - currentCategory;
+        const isSelected = offset === 0;
+        const distance = Math.abs(offset);
+        const scale = isSelected ? 1 : CATEGORY_UNSELECTED_SCALE;
 
-        <AnimatePresence mode="popLayout">
-          {categories.map((category, index) => {
-            const isSelected = index === currentCategory;
-            const distance = Math.abs(index - currentCategory);
-            
-            return (
-              <motion.div
-                key={category.id}
-                layout={false}
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: isSelected ? 1 : distance === 1 ? 0.5 : 0.3,
-                  scale: isSelected ? 1 : 0.82,
-                }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.22, ease: 'easeOut' }}
-                className={`flex flex-col items-center cursor-pointer ${
-                  isInSubfolder ? 'pointer-events-none' : ''
-                }`}
-                style={{ gap: '0.3em', width: '100%' }} // tighter gap between icon and label
-                onClick={() => handleCategoryClick(index)}
-              >
-                {/* Category icon */}
-                <motion.div
-                  className="relative flex items-center justify-center"
-                  style={{ 
-                    width: isSelected ? '2.65em' : '2.1em', 
-                    height: isSelected ? '2.65em' : '2.1em',
-                    padding: '0.12em',
-                  }}
-                  animate={{
-                    filter: isSelected ? 'drop-shadow(0 0 10px rgba(255,255,255,0.45))' : 'none',
-                  }}
-                >
-                  <Image
-                    src={categoryIconPaths[category.icon] || '/icons/home.png'}
-                    alt={category.name}
-                    fill
-                    className="object-contain pointer-events-none"
-                    style={{ objectFit: 'contain', objectPosition: 'center' }}
-                  />
-                </motion.div>
-                
-                {/* Category name - keep space to prevent lateral shifts */}
-                <motion.span
-                  animate={{ opacity: isSelected ? 1 : 0.05 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-white font-medium tracking-wide text-center"
-                  style={{ fontSize: '0.58em', minHeight: '0.9em', whiteSpace: 'nowrap', letterSpacing: '0.02em' }}
-                >
-                  {category.name}
-                </motion.span>
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </motion.div>
+        return (
+          <motion.div
+            key={category.id}
+            className={`absolute flex flex-col items-center ${
+              isInSubfolder ? '' : 'cursor-pointer pointer-events-auto'
+            }`}
+            style={{
+              left: px(CATEGORY_X - CATEGORY_CELL_W / 2),
+              top: px(CATEGORY_Y - CATEGORY_ICON_H / 2),
+              width: px(CATEGORY_CELL_W),
+            }}
+            animate={{
+              x: px(offset * CATEGORY_STEP),
+              opacity: isSelected ? 1 : distance === 1 ? 0.55 : 0.3,
+            }}
+            transition={{ type: 'tween', duration: 0.18, ease: 'easeOut' }}
+            onClick={() => handleCategoryClick(index)}
+          >
+            <motion.div
+              className="relative"
+              animate={{
+                width: px(CATEGORY_ICON_W * scale),
+                height: px(CATEGORY_ICON_H * scale),
+                filter: isSelected
+                  ? 'drop-shadow(0 0 10px rgba(255,255,255,0.45))'
+                  : 'drop-shadow(0 0 0 rgba(255,255,255,0))',
+              }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+            >
+              <Image
+                src={categoryIconPaths[category.icon] || '/icons/home.png'}
+                alt={category.name}
+                fill
+                sizes="64px"
+                className="object-contain pointer-events-none"
+              />
+            </motion.div>
+
+            <motion.span
+              animate={{ opacity: isSelected ? 1 : 0 }}
+              transition={{ duration: 0.18 }}
+              className="text-white text-center"
+              style={{
+                marginTop: px(CATEGORY_LABEL_GAP),
+                fontSize: px(CATEGORY_LABEL_SIZE),
+                letterSpacing: '0.02em',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {category.name}
+            </motion.span>
+          </motion.div>
+        );
+      })}
     </div>
   );
 }

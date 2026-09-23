@@ -1,19 +1,24 @@
 'use client';
 
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import type { XMBItem, XMBChildItem } from '@/types/xmb';
 import { useAudio } from '@/hooks/useAudio';
 import {
-  RAIL_PADDING_EM,
-  ITEM_ROW_PADDING_EM,
-  ITEM_ICON_SLOT_EM,
-  ITEM_LIST_PADDING_EM,
-  ITEM_LIST_WIDTH_EM,
-  ITEM_ICON_TEXT_GAP_EM,
-  ITEM_TEXT_MAX_EM,
+  px,
+  GUTTER,
+  ITEM_X,
+  ITEM_Y,
+  itemOffsetY,
+  ITEM_ICON_FOCUS,
+  ITEM_ICON_BODY,
+  SUB_ICON_FOCUS,
+  SUB_ICON_BODY,
+  ITEM_TEXT_GAP,
+  ITEM_TITLE_SIZE,
+  ITEM_SUBTITLE_SIZE,
+  ITEM_TEXT_MAX,
 } from './layout';
 
 // Map item types to PNG icon paths
@@ -35,23 +40,21 @@ const itemIconPaths: { [key: string]: string } = {
 
 // Specific icon overrides for certain items
 const itemIconOverrides: { [key: string]: string } = {
-  'profile': '/icons/users.png',           // Who I Am
-  'manifesto': '/icons/web.png',           // Design Manifesto  
-  'after-hours': '/icons/home.png',        // 5-9 After 9-5
+  'profile': '/icons/users.png',
+  'manifesto': '/icons/web.png',
+  'after-hours': '/icons/home.png',
   'internet-browser': '/icons/web.png',
   'remote-play': '/icons/connect.png',
   'rss-channel': '/icons/web.png',
   'theme-settings': '/icons/settings.png',
-  'resume-pdf': '/icons/saved_filled.png', // memory stick icon for resume download
+  'resume-pdf': '/icons/saved_filled.png',
   'toggle-audio': '/icons/speaker.png',
   'origin-story': '/images/about/origin-story.png',
-  // Project-specific thumbnails (ordered as provided by user attachments)
   'project-1': '/images/projects/project-1.png',
   'project-2': '/images/projects/project-2.png',
   'project-3': '/images/projects/project-3.png',
   'project-4': '/images/projects/project-4.png',
   'project-5': '/images/projects/project-5.png',
-  // Gallery overrides (first ten images)
   'gallery-1': '/images/gallery/gallery-1.png',
   'gallery-2': '/images/gallery/gallery-2.png',
   'gallery-3': '/images/gallery/gallery-3.png',
@@ -65,28 +68,15 @@ const itemIconOverrides: { [key: string]: string } = {
 };
 
 function getItemIconPath(item: XMBItem | XMBChildItem): string {
-  // Check for specific item ID overrides first
-  if (item.id && itemIconOverrides[item.id]) {
-    return itemIconOverrides[item.id];
-  }
+  if (item.id && itemIconOverrides[item.id]) return itemIconOverrides[item.id];
 
-  // Pattern-based overrides
-  if (item.id?.startsWith('song')) {
-    return '/icons/saved_filled.png'; // memory/file icon for all song items
-  }
-  if (item.id?.startsWith('gallery')) {
-    return itemIconPaths.camera; // image/camera icon for gallery items
-  }
-  if (item.id === 'origin-story') {
-    return itemIconPaths.camera; // image icon for origin story
-  }
-  if (item.id === 'skills') {
-    return itemIconPaths.settings; // tool/settings icon for skills
-  }
-  
+  if (item.id?.startsWith('theme-')) return '/icons/settings.png';
+  if (item.id?.startsWith('song')) return '/icons/saved_filled.png';
+  if (item.id?.startsWith('gallery')) return itemIconPaths.camera;
+  if (item.id === 'skills') return itemIconPaths.settings;
+
   switch (item.type) {
     case 'caseStudy':
-      // Use thumbnail when available to keep proportions consistent, fallback to UMD icon
       if ('thumbnail' in item && item.thumbnail) return item.thumbnail;
       return itemIconPaths.umd;
     case 'folder':
@@ -116,11 +106,11 @@ function getItemSubtext(item: XMBItem | XMBChildItem) {
 }
 
 export default function ItemList() {
-  const { 
-    categories, 
-    currentCategory, 
-    currentItem, 
-    setItem, 
+  const {
+    categories,
+    currentCategory,
+    currentItem,
+    setItem,
     selectItem,
     isInSubfolder,
     subfolderItems,
@@ -146,200 +136,138 @@ export default function ItemList() {
   // contents fade in rather than snapping into place.
   const listKey = `${isInSubfolder ? 'sub' : 'cat'}-${currentCategory}-${items[0]?.id ?? ''}`;
 
+  const focusSize = isInSubfolder ? SUB_ICON_FOCUS : ITEM_ICON_FOCUS;
+  const bodySize = isInSubfolder ? SUB_ICON_BODY : ITEM_ICON_BODY;
+
   const handleItemClick = (index: number) => {
     const clickedItem = items?.[index];
-    
-    // If clicking on a folder, always open it (even if not selected)
+
     if (clickedItem && 'type' in clickedItem && clickedItem.type === 'folder' && 'children' in clickedItem) {
       playSelect();
       selectItem();
       return;
     }
-    
-    // If clicking the selected item, select/open it
+
     if (index === currentItem) {
       playSelect();
       selectItem();
     } else {
-      // Otherwise navigate to that item
       playNavigate();
       setItem(index);
     }
   };
 
-  const handleBackClick = () => {
-    playBack();
-    goBack();
-  };
-
-  // XMB style: selected near top/left, with above/below context.
-  // Row/block dimensions for consistent snapping
-  const rowHeightEm = 4.2; // item block height
-  const rowGapEm = 3.0; // default vertical gap between items
-  const rowGapAfterActiveEm = 1.2; // reduced gap right after the active item so the next is visible
-  const stepEm = rowHeightEm + rowGapEm; // total vertical step per item
-  const topOffsetEm = 1.0; // cushion under the category rail for active item spacing
-
   return (
-    <div
-      className="absolute inset-0 w-full flex flex-col items-start z-0"
-      style={{
-        paddingLeft: `${ITEM_LIST_PADDING_EM}em`,
-        marginTop: '0px',
-        overflow: 'visible'
-      }}
-    >
-      {/* Back button when in subfolder */}
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
       {isInSubfolder && (
         <motion.button
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          onClick={handleBackClick}
-          className="absolute text-white/70 hover:text-white flex items-center z-10"
-          style={{ top: '-0.5em', left: `${RAIL_PADDING_EM}em`, gap: '0.35em', fontSize: '0.65em' }}
+          initial={{ opacity: 0, y: '-0.3em' }}
+          animate={{ opacity: 0.7, y: 0 }}
+          onClick={() => {
+            playBack();
+            goBack();
+          }}
+          className="absolute text-white hover:opacity-100 flex items-center z-10 pointer-events-auto"
+          style={{
+            top: px(GUTTER),
+            left: px(GUTTER),
+            gap: px(3),
+            fontSize: px(10),
+          }}
         >
-          <svg style={{ width: '1em', height: '1em' }} fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          <svg style={{ width: px(11), height: px(11) }} fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fillRule="evenodd"
+              d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
           </svg>
           Back
         </motion.button>
       )}
-      
-      {/* Items list - XMB style: vertical list with selected item centered */}
-      <div
-        className="flex flex-col items-start justify-start relative"
-        style={{ 
-          gap: `${rowGapEm}em`,
-          paddingTop: '2em', 
-          paddingBottom: '2em', // equal padding above/below category bar area
-          height: `${stepEm * 3}em`, // one above + active + one below
-          overflow: 'hidden',
-          width: `${ITEM_LIST_WIDTH_EM}em`,
-        }}
+
+      <motion.div
+        key={listKey}
+        className="absolute inset-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.34, ease: 'easeOut' }}
       >
-        <motion.div
-          key={listKey}
-          // Leave one item-height of headroom above the active item (mirrors category spacer logic)
-          initial={{ opacity: 0 }}
-          animate={{
-            opacity: 1,
-            y: `calc(${topOffsetEm}em - ${currentItem} * ${stepEm}em + ${stepEm}em)`,
-          }}
-          transition={{
-            y: { type: 'tween', duration: 0.12, ease: 'easeOut' },
-            opacity: { duration: 0.34, ease: 'easeOut' },
-          }}
-          className="flex flex-col relative"
-          style={{ 
-            gap: `${rowGapEm}em`, 
-            paddingRight: '0.75em',
-            display: 'grid',
-            gridAutoRows: `${rowHeightEm}em`,
-            rowGap: `${rowGapEm}em`,
-          }}
-        >
-          <AnimatePresence mode="popLayout">
-            {items.map((item, originalIndex) => {
-              const isSelected = originalIndex === currentItem;
-              const distance = Math.abs(originalIndex - currentItem);
-              
-              // XMB style: selected item fully visible, adjacent items visible but faded, distant items more faded
-              let opacity = 1;
-              if (distance === 0) opacity = 1;
-              else if (distance === 1) opacity = 0.6;
-              else if (distance === 2) opacity = 0.4;
-              else opacity = 0.25;
-              const isAbove = originalIndex < currentItem;
-              
-              return (
+        {items.map((item, index) => {
+          const offset = index - currentItem;
+          const isSelected = offset === 0;
+          const distance = Math.abs(offset);
+          const opacity = distance === 0 ? 1 : distance === 1 ? 0.6 : distance === 2 ? 0.4 : 0.25;
+          const iconSize = isSelected ? focusSize : bodySize;
+          const subtext = getItemSubtext(item);
+
+          return (
+            <motion.div
+              key={item.id}
+              className="absolute flex items-center cursor-pointer pointer-events-auto"
+              style={{
+                left: px(ITEM_X - focusSize / 2),
+                top: px(ITEM_Y - focusSize / 2),
+                height: px(focusSize),
+                gap: px(ITEM_TEXT_GAP),
+              }}
+              animate={{ y: px(itemOffsetY(offset) - ITEM_Y), opacity }}
+              transition={{ type: 'tween', duration: 0.14, ease: 'easeOut' }}
+              onClick={() => handleItemClick(index)}
+            >
+              {/* Fixed slot so body and focus sizes share one centre line */}
+              <div
+                className="flex-shrink-0 flex items-center justify-center"
+                style={{ width: px(focusSize), height: px(focusSize) }}
+              >
+                <motion.img
+                  src={getItemIconPath(item)}
+                  alt={item.title}
+                  animate={{ width: px(iconSize), height: px(iconSize) }}
+                  transition={{ duration: 0.14, ease: 'easeOut' }}
+                  style={{ objectFit: 'contain', display: 'block' }}
+                />
+              </div>
+
+              <div className="flex flex-col" style={{ maxWidth: px(ITEM_TEXT_MAX) }}>
+                {/* Kept mounted and faded by selection - mounting inside a
+                    presence wrapper skips the enter animation. */}
                 <motion.div
-                  key={item.id}
-                  layout={false}
-                  initial={{ opacity: 0, x: '-0.5em' }}
-                  animate={{
-                    opacity: opacity,
-                    x: 0,
-                    backgroundColor: 'transparent',
-                    boxShadow: 'none',
-                    filter: 'none',
-                  }}
-                  exit={{ opacity: 0, x: '-0.5em' }}
-                  transition={{ type: 'tween', duration: 0.14, ease: 'easeOut' }}
-                  onClick={() => handleItemClick(originalIndex)}
-                  className="relative flex items-center cursor-pointer"
+                  animate={{ opacity: isSelected ? 1 : 0 }}
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                  className="text-white font-medium"
                   style={{
-                    gap: `${ITEM_ICON_TEXT_GAP_EM}em`,
-                    padding: `0.55em ${ITEM_ROW_PADDING_EM}em`,
-                    minHeight: '3.1em',
-                    borderRadius: '0.9em',
-                    backdropFilter: 'none',
-                    // Reduce spacing after the active item only, so the next item stays visible
-                    marginBottom: isSelected ? `${rowGapAfterActiveEm - rowGapEm}em` : undefined,
+                    fontSize: px(ITEM_TITLE_SIZE),
+                    lineHeight: 1.25,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
                   }}
                 >
-                {/* Item icon - centred in a fixed slot so every icon size shares one axis */}
-                <div
-                  className="relative flex-shrink-0 flex items-center justify-center"
-                  style={{
-                    width: `${ITEM_ICON_SLOT_EM}em`,
-                    height: `${ITEM_ICON_SLOT_EM}em`,
-                  }}
-                >
-                  <img
-                    src={getItemIconPath(item)}
-                    alt={item.title}
-                    style={{
-                      width: item.type === 'caseStudy' ? (isSelected ? '2.35em' : '1.95em') : (isSelected ? '2.05em' : '1.7em'),
-                      height: item.type === 'caseStudy' ? (isSelected ? '2.35em' : '1.95em') : (isSelected ? '2.05em' : '1.7em'),
-                      objectFit: 'contain',
-                      filter: 'none',
-                      display: 'block'
-                    }}
-                  />
-                </div>
-                
-                {/* Item content */}
-                <div className="flex flex-col" style={{ maxWidth: `${ITEM_TEXT_MAX_EM}em` }}>
-                  {/* Kept mounted and faded by selection - mounting inside
-                      AnimatePresence skips the enter animation. */}
-                  <motion.div
-                    animate={{ opacity: isSelected ? 1 : 0 }}
-                    transition={{ duration: 0.22, ease: 'easeOut' }}
-                    className="text-white font-medium"
-                      style={{
-                        fontSize: '0.78em',
-                        lineHeight: 1.25,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                  >
-                    {item.title}
-                  </motion.div>
-                  {getItemSubtext(item) && (
-                    <motion.div
-                      animate={{ opacity: isSelected ? 0.7 : 0 }}
-                      transition={{ duration: 0.22, ease: 'easeOut' }}
-                      className="text-white"
-                      style={{ 
-                        fontSize: '0.5em',
-                        marginTop: '0.16em',
-                        lineHeight: 1.35,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis'
-                      }}
-                    >
-                      {getItemSubtext(item)}
-                    </motion.div>
-                  )}
-                </div>
+                  {item.title}
                 </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
-      </div>
+                {subtext && (
+                  <motion.div
+                    animate={{ opacity: isSelected ? 0.7 : 0 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                    className="text-white"
+                    style={{
+                      marginTop: px(2),
+                      fontSize: px(ITEM_SUBTITLE_SIZE),
+                      lineHeight: 1.35,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {subtext}
+                  </motion.div>
+                )}
+              </div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
     </div>
   );
 }

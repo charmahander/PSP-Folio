@@ -3,6 +3,7 @@
 import { useState, useEffect, memo } from 'react';
 import Image from 'next/image';
 import { usePortfolioStore } from '@/stores/portfolioStore';
+import { px, GUTTER, STATUS_TEXT_SIZE, STATUS_ICON, STATUS_GAP } from './layout';
 
 interface BatteryLike extends EventTarget {
   level: number;
@@ -85,7 +86,15 @@ const StatusBar = memo(function StatusBar() {
   }, []);
 
   return (
-    <div className="absolute z-20 flex items-center text-white/90" style={{ top: '0.75em', right: '1em', gap: '0.75em', fontSize: '1em' }}>
+    <div
+      className="absolute z-20 flex items-center text-white/90"
+      style={{
+        top: px(GUTTER),
+        right: px(GUTTER * 1.5),
+        gap: px(STATUS_GAP),
+        fontSize: px(STATUS_TEXT_SIZE),
+      }}
+    >
       <span className="font-medium">{date}</span>
       <span className="font-medium">{time}</span>
 
@@ -94,7 +103,7 @@ const StatusBar = memo(function StatusBar() {
         aria-label={isMuted ? 'Unmute' : 'Mute'}
         onClick={toggleMute}
         className="relative"
-        style={{ width: '1.75em', height: '1.75em', WebkitTapHighlightColor: 'transparent' }}
+        style={{ width: px(STATUS_ICON), height: px(STATUS_ICON), WebkitTapHighlightColor: 'transparent' }}
       >
         <Image
           src={isMuted ? '/icons/speaker-muted.png' : '/icons/speaker-status.png'}
@@ -107,7 +116,7 @@ const StatusBar = memo(function StatusBar() {
       {/* Battery gauge - reflects the host device where the API is available */}
       <div
         className="relative"
-        style={{ width: '1.75em', height: '1.75em' }}
+        style={{ width: px(STATUS_ICON), height: px(STATUS_ICON) }}
         title={level === null ? 'Battery' : `Battery ${Math.round(level * 100)}%`}
       >
         <Image
