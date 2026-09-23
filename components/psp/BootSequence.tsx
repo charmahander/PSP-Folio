@@ -3,22 +3,17 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
-import { useAudio } from '@/hooks/useAudio';
 import WaveBackground from '../xmb/WaveBackground';
 
 export default function BootSequence() {
   const { finishBooting } = usePortfolioStore();
-  const { playBoot } = useAudio();
   const [phase, setPhase] = useState<'wave' | 'name' | 'done'>('wave');
 
   useEffect(() => {
-    // Play boot sound and show name immediately
-    // Text fade in: 1s max
-    // Total boot sequence: ~3s (matches startup sound duration)
-    
+    // The jingle is started by StartGate, inside the user gesture that got us
+    // here - browsers block it from a mount effect like this one.
     const bootTimer = setTimeout(() => {
-      playBoot();
-      setPhase('name'); // Show name when sound plays
+      setPhase('name');
     }, 100);
 
     // Hold after waves expand before showing menu/top UI
@@ -31,7 +26,7 @@ export default function BootSequence() {
       clearTimeout(bootTimer);
       clearTimeout(doneTimer);
     };
-  }, [finishBooting, playBoot]);
+  }, [finishBooting]);
 
   return (
     <AnimatePresence>

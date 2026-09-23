@@ -49,8 +49,8 @@ function useIsMobile() {
 export default function PSPScene() {
   useXMBNavigation();
   const isMobile = useIsMobile();
-  const { isBooting, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
-  const { playNavigate, playSelect, playBack } = useAudio();
+  const { isBooting, hasStarted, start, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
+  const { playNavigate, playSelect, playBack, playBoot } = useAudio();
   const pspRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
 
@@ -180,6 +180,18 @@ export default function PSPScene() {
             className="absolute bg-transparent rounded-full pointer-events-auto"
             style={hitArea(977.5, 195.5, 55, 55)}
             aria-label="Back (Circle)"
+          />
+
+          {/* START: the only control the gate prompt points at, so it has to work */}
+          <button
+            onClick={() => {
+              if (hasStarted) return;
+              playBoot();
+              start();
+            }}
+            className="absolute bg-transparent pointer-events-auto"
+            style={hitArea(802, 409.5, 59, 28)}
+            aria-label="Start"
           />
         </div>
         

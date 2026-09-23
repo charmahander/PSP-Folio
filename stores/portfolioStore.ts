@@ -7,6 +7,7 @@ interface PortfolioState {
   currentItem: number;
   
   // UI state
+  hasStarted: boolean;
   isBooting: boolean;
   expandedContent: CaseStudy | null;
   expandedAbout: AboutItem | null;
@@ -27,6 +28,7 @@ interface PortfolioState {
   navigateDown: () => void;
   selectItem: () => void;
   goBack: () => void;
+  start: () => void;
   finishBooting: () => void;
   setExpandedContent: (content: CaseStudy | null) => void;
   setExpandedAbout: (content: AboutItem | null) => void;
@@ -41,6 +43,7 @@ interface PortfolioState {
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   currentCategory: 0,
   currentItem: 0,
+  hasStarted: false,
   isBooting: true,
   expandedContent: null,
   expandedAbout: null,
@@ -368,6 +371,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     }
   },
   
+  start: () => set({ hasStarted: true }),
+
   finishBooting: () => set({ isBooting: false }),
   
   setExpandedContent: (content) => set({ expandedContent: content }),

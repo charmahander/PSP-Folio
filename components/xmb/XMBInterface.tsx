@@ -8,9 +8,10 @@ import CategoryBar from './CategoryBar';
 import ItemList from './ItemList';
 import StatusBar from './StatusBar';
 import BootSequence from '../psp/BootSequence';
+import StartGate from '../psp/StartGate';
 
 export default function XMBInterface() {
-  const { isBooting } = usePortfolioStore();
+  const { isBooting, hasStarted } = usePortfolioStore();
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
@@ -28,7 +29,9 @@ export default function XMBInterface() {
   return (
     <div className="w-full h-full relative overflow-hidden font-rodin">
       {/* Boot sequence inside screen UI */}
-      {isBooting ? (
+      {!hasStarted ? (
+        <StartGate />
+      ) : isBooting ? (
         <BootSequence />
       ) : (
         <>
