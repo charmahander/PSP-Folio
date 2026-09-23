@@ -2,7 +2,6 @@
 
 import { useState, useEffect, memo } from 'react';
 import Image from 'next/image';
-import { usePortfolioStore } from '@/stores/portfolioStore';
 import { px, GUTTER, STATUS_TEXT_SIZE, STATUS_ICON, STATUS_GAP } from './layout';
 
 interface BatteryLike extends EventTarget {
@@ -61,7 +60,6 @@ function useBatteryBars() {
 const StatusBar = memo(function StatusBar() {
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
-  const { isMuted, toggleMute } = usePortfolioStore();
   const { bars, level } = useBatteryBars();
 
   useEffect(() => {
@@ -98,20 +96,8 @@ const StatusBar = memo(function StatusBar() {
       <span className="font-medium">{date}</span>
       <span className="font-medium">{time}</span>
 
-      {/* Speaker / mute toggle */}
-      <button
-        aria-label={isMuted ? 'Unmute' : 'Mute'}
-        onClick={toggleMute}
-        className="relative"
-        style={{ width: px(STATUS_ICON), height: px(STATUS_ICON), WebkitTapHighlightColor: 'transparent' }}
-      >
-        <Image
-          src={isMuted ? '/icons/speaker-muted.png' : '/icons/speaker-status.png'}
-          alt={isMuted ? 'Sound muted' : 'Sound on'}
-          fill
-          className="object-contain opacity-90"
-        />
-      </button>
+      {/* Hardware shows only date, time and battery here - volume lives on the
+          VOL buttons, not in the status bar. */}
 
       {/* Battery gauge - reflects the host device where the API is available */}
       <div

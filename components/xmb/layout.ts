@@ -17,18 +17,22 @@ const SCREEN_EM = 31;
 export const px = (n: number) => `${((n * SCREEN_EM) / SCREEN_W).toFixed(4)}em`;
 
 // --- Horizontal category bar -------------------------------------------------
-/** Sony spec: category icons are 64 x 48. */
-export const CATEGORY_ICON_W = 64;
-export const CATEGORY_ICON_H = 48;
-/** Unselected categories shrink, as they do on hardware. */
-export const CATEGORY_UNSELECTED_SCALE = 0.72;
+/**
+ * Sony's 64x48 figure is the image canvas, which its wide category glyphs fill.
+ * Our source art is square, so a 64x48 box would render only 48px and leave the
+ * category smaller than its own items - the opposite of the hardware, where a
+ * category icon clearly outsizes the column beneath it. Sized by that intent.
+ */
+export const CATEGORY_ICON = 64;
+/** Active is only slightly larger; the row should not lurch as it moves. */
+export const CATEGORY_UNSELECTED_SCALE = 0.84;
 export const CATEGORY_STEP = 144;
 /** Selected category sits left of centre, not in the middle. */
 export const CATEGORY_X = 167;
 export const CATEGORY_Y = 78;
 export const CATEGORY_CELL_W = 136;
-export const CATEGORY_LABEL_SIZE = 10;
-export const CATEGORY_LABEL_GAP = 5;
+export const CATEGORY_LABEL_SIZE = 11;
+export const CATEGORY_LABEL_GAP = 6;
 
 // --- Vertical item column ----------------------------------------------------
 /** The column hangs off the selected category, so it shares that axis exactly. */
@@ -39,11 +43,11 @@ export const ITEM_STEP = 71;
 /** Items above the selection clear the band the category row occupies. */
 export const ITEM_ABOVE_BAR_SKIP = 79;
 
-/** Sony spec: first level 48 body / 64 focus, second level 32 body / 48 focus. */
-export const ITEM_ICON_FOCUS = 64;
-export const ITEM_ICON_BODY = 48;
-export const SUB_ICON_FOCUS = 48;
-export const SUB_ICON_BODY = 32;
+/** Kept below CATEGORY_ICON so each level reads as subordinate to its parent. */
+export const ITEM_ICON_FOCUS = 46;
+export const ITEM_ICON_BODY = 34;
+export const SUB_ICON_FOCUS = 34;
+export const SUB_ICON_BODY = 26;
 
 export const ITEM_TEXT_GAP = 12;
 export const ITEM_TITLE_SIZE = 13;
@@ -57,6 +61,6 @@ export function itemOffsetY(offset: number): number {
 // --- Status bar --------------------------------------------------------------
 /** 8px is the gutter that recurs throughout the Sony spec. */
 export const GUTTER = 8;
-export const STATUS_TEXT_SIZE = 11;
-export const STATUS_ICON = 17;
-export const STATUS_GAP = 9;
+export const STATUS_TEXT_SIZE = 13;
+export const STATUS_ICON = 26;
+export const STATUS_GAP = 10;

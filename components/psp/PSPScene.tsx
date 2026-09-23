@@ -50,7 +50,7 @@ function useIsMobile() {
 export default function PSPScene() {
   useXMBNavigation();
   const isMobile = useIsMobile();
-  const { isBooting, hasStarted, start, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
+  const { isBooting, hasStarted, start, adjustVolume, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
   const { playNavigate, playSelect, playBack, playBoot } = useAudio();
   const theme = useTheme();
   const pspRef = useRef<HTMLDivElement>(null);
@@ -182,6 +182,26 @@ export default function PSPScene() {
             className="absolute bg-transparent rounded-full pointer-events-auto"
             style={hitArea(977.5, 195.5, 55, 55)}
             aria-label="Back (Circle)"
+          />
+
+          {/* VOL - / + drive the master gain, the way the hardware does */}
+          <button
+            onClick={() => {
+              adjustVolume(-0.1);
+              playNavigate();
+            }}
+            className="absolute bg-transparent pointer-events-auto"
+            style={{ ...hitArea(302.5, 410, 32, 23), cursor: 'pointer' }}
+            aria-label="Volume down"
+          />
+          <button
+            onClick={() => {
+              adjustVolume(0.1);
+              playNavigate();
+            }}
+            className="absolute bg-transparent pointer-events-auto"
+            style={{ ...hitArea(371.5, 410, 32, 23), cursor: 'pointer' }}
+            aria-label="Volume up"
           />
 
           {/* START: the control the gate prompt points at, so it has to work */}

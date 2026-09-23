@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 
 const SOUND_FILES = {
@@ -38,11 +38,17 @@ function getSound(key: SoundKey): Howl | undefined {
 let bootPlayed = false;
 
 export function useAudio() {
-  const { isMuted } = usePortfolioStore();
+  const isMuted = usePortfolioStore((s) => s.isMuted);
+  const volume = usePortfolioStore((s) => s.volume);
 
   useEffect(() => {
     (Object.keys(SOUND_FILES) as SoundKey[]).forEach(getSound);
   }, []);
+
+  // The PSP's VOL buttons drive this; Howler's master gain covers every sound.
+  useEffect(() => {
+    Howler.volume(volume);
+  }, [volume]);
 
   const play = useCallback(
     (key: SoundKey) => {

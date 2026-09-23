@@ -36,6 +36,8 @@ interface PortfolioState {
   setExpandedContent: (content: CaseStudy | null) => void;
   setExpandedAbout: (content: AboutItem | null) => void;
   toggleMute: () => void;
+  volume: number;
+  adjustVolume: (delta: number) => void;
   enterSubfolder: (items: AboutItem[]) => void;
   exitSubfolder: () => void;
   
@@ -57,7 +59,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   activeFolderIndex: null,
   activeFolderTitle: null,
   isMuted: false,
-  
+  volume: 0.7,
+
   categories: [
     {
       id: 'settings',
@@ -83,7 +86,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     },
     {
       id: 'game',
-      name: 'Games',
+      name: 'Projects',
       icon: 'game',
       items: [
         {
@@ -284,20 +287,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     // If in subfolder, don't navigate categories
     if (isInSubfolder) return;
     
-    const items = categories[currentCategory]?.items;
-    const item = items?.[currentItem];
-    
-    if (item && item.type === 'folder' && item.children) {
-      set({ 
-        isInSubfolder: true, 
-        subfolderItems: item.children as XMBChildItem[], 
-        currentItem: 0,
-        activeFolderIndex: currentItem,
-        activeFolderTitle: item.title,
-      });
-      return;
-    }
-    
+    // Right moves along the category row. Only X opens a folder, as on
+    // hardware - right previously swallowed the press and entered one.
     const next = (currentCategory + 1) % categories.length;
     set({ currentCategory: next, currentItem: 0, activeFolderIndex: null, activeFolderTitle: null, subfolderItems: null });
   },
@@ -407,6 +398,11 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   start: () => set({ hasStarted: true }),
 
   setTheme: (index) => set({ themeIndex: index }),
+
+  // Derived from current state, not a captured value: repeated presses within
+  // one render would otherwise all read the same volume and collapse to one step.
+  adjustVolume: (delta) =>
+    set((state) => ({ volume: Math.max(0, Math.min(1, state.volume + delta)) })),
 
   finishBooting: () => set({ isBooting: false }),
   

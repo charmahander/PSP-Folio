@@ -6,8 +6,7 @@ import { usePortfolioStore } from '@/stores/portfolioStore';
 import { useAudio } from '@/hooks/useAudio';
 import {
   px,
-  CATEGORY_ICON_W,
-  CATEGORY_ICON_H,
+  CATEGORY_ICON,
   CATEGORY_UNSELECTED_SCALE,
   CATEGORY_STEP,
   CATEGORY_X,
@@ -49,13 +48,14 @@ export default function CategoryBar() {
         return (
           <motion.div
             key={category.id}
-            className={`absolute flex flex-col items-center ${
-              isInSubfolder ? '' : 'cursor-pointer pointer-events-auto'
-            }`}
+            className={`absolute ${isInSubfolder ? '' : 'cursor-pointer pointer-events-auto'}`}
             style={{
+              // Box is icon-sized and centred on the row, so every icon shares
+              // one centreline no matter how the selected one scales.
               left: px(CATEGORY_X - CATEGORY_CELL_W / 2),
-              top: px(CATEGORY_Y - CATEGORY_ICON_H / 2),
+              top: px(CATEGORY_Y - CATEGORY_ICON / 2),
               width: px(CATEGORY_CELL_W),
+              height: px(CATEGORY_ICON),
             }}
             animate={{
               x: px(offset * CATEGORY_STEP),
@@ -64,32 +64,35 @@ export default function CategoryBar() {
             transition={{ type: 'tween', duration: 0.18, ease: 'easeOut' }}
             onClick={() => handleCategoryClick(index)}
           >
-            <motion.div
-              className="relative"
-              animate={{
-                width: px(CATEGORY_ICON_W * scale),
-                height: px(CATEGORY_ICON_H * scale),
-                filter: isSelected
-                  ? 'drop-shadow(0 0 10px rgba(255,255,255,0.45))'
-                  : 'drop-shadow(0 0 0 rgba(255,255,255,0))',
-              }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
-            >
-              <Image
-                src={categoryIconPaths[category.icon] || '/icons/home.png'}
-                alt={category.name}
-                fill
-                sizes="64px"
-                className="object-contain pointer-events-none"
-              />
-            </motion.div>
+            <div className="w-full h-full flex items-center justify-center">
+              <motion.div
+                className="relative"
+                animate={{
+                  width: px(CATEGORY_ICON * scale),
+                  height: px(CATEGORY_ICON * scale),
+                  filter: isSelected
+                    ? 'drop-shadow(0 0 10px rgba(255,255,255,0.45))'
+                    : 'drop-shadow(0 0 0 rgba(255,255,255,0))',
+                }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+              >
+                <Image
+                  src={categoryIconPaths[category.icon] || '/icons/home.png'}
+                  alt={category.name}
+                  fill
+                  sizes="64px"
+                  className="object-contain pointer-events-none"
+                />
+              </motion.div>
+            </div>
 
             <motion.span
               animate={{ opacity: isSelected ? 1 : 0 }}
               transition={{ duration: 0.18 }}
-              className="text-white text-center"
+              className="absolute text-white text-center w-full"
               style={{
-                marginTop: px(CATEGORY_LABEL_GAP),
+                top: `calc(100% + ${px(CATEGORY_LABEL_GAP)})`,
+                left: 0,
                 fontSize: px(CATEGORY_LABEL_SIZE),
                 letterSpacing: '0.02em',
                 whiteSpace: 'nowrap',

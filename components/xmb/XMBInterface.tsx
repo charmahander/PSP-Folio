@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import WaveBackground from './WaveBackground';
+import ItemArtwork from './ItemArtwork';
 import CategoryBar from './CategoryBar';
 import ItemList from './ItemList';
 import StatusBar from './StatusBar';
@@ -37,6 +38,9 @@ export default function XMBInterface() {
         <>
           {/* Animated wave background */}
           <WaveBackground />
+
+          {/* Highlighted project's artwork, over the waves and under the menu */}
+          <ItemArtwork />
           
           {/* Status bar - fade in with menu */}
           <motion.div
