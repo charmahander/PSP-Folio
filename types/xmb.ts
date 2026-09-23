@@ -55,7 +55,11 @@ export interface XMBChildItem {
   icon?: string;
 }
 
-export interface XMBItem extends Partial<CaseStudy>, Partial<AboutItem> {
+// `type` and `children` are omitted from the inherited AboutItem shape because
+// this interface widens both, and an interface cannot widen what it extends.
+export interface XMBItem
+  extends Partial<CaseStudy>,
+    Partial<Omit<AboutItem, 'type' | 'children'>> {
   id: string;
   title: string;
   type: XMBNodeType;

@@ -298,13 +298,13 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     if (!item) return;
     
     // Case study content
-    if (item.type === 'caseStudy' && item.content) {
+    if (item.type === 'caseStudy' && 'content' in item && item.content) {
       set({ expandedContent: item as CaseStudy });
       return;
     }
     
     // Folders
-    if (item.type === 'folder' && item.children) {
+    if (item.type === 'folder' && 'children' in item && item.children) {
       const parentIndex = isInSubfolder ? activeFolderIndex : currentItem;
       set({ 
         isInSubfolder: true, 
