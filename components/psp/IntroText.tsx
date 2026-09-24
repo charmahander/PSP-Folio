@@ -47,7 +47,7 @@ export default function IntroText() {
       </motion.p>
       <motion.p variants={block} style={{ marginTop: '14px' }}>
         {
-          "I built the design of the device in Figma, brought it to Cursor, got bored of Cursor (sorry), and revamped it in Claude Code. It's navigable with mouse, keys, and the console buttons + the original sounds! The XMB Interface was tricky to build but I learnt a lot!"
+          "Built the device's design on Figma, brought it to life with Cursor with Sonnet last year, then revamped it recently in Claude Code with Opus 5. It's navigable with your mouse, keys, touch, and even the console buttons; and for added nostalgia, the original sounds! The XMB Interface was tricky to build but you learn a lot from the '00s. Enjoy!"
         }
       </motion.p>
       <motion.p variants={block} style={{ marginTop: '20px' }}>
