@@ -27,7 +27,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="w-screen h-screen overflow-hidden relative">
+    <main className="w-screen min-h-screen overflow-x-hidden relative flex flex-col justify-center">
       {/* Light minimal background */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-gray-50 to-gray-100" />
       
@@ -45,7 +45,9 @@ export default function Home() {
 
       {/* Main PSP Scene */}
       {showScene && (
-        <div className="absolute inset-0">
+        /* In flow, not pinned: an absolute wrapper cannot grow the page, so
+           the copy below the device was unreachable on short windows. */
+        <div className="relative">
           <PSPScene />
         </div>
       )}
@@ -54,8 +56,9 @@ export default function Home() {
       {expandedContent && <CaseStudyModal />}
       {expandedAbout && <AboutModal />}
 
-      {/* Navigation hints - desktop */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-6 text-gray-400 text-sm font-rodin">
+      {/* Hints sit in flow: pinned to the bottom they landed on top of the
+          copy once the page grew taller than the viewport. */}
+      <div className="relative mt-8 pb-8 mx-auto w-fit hidden lg:flex items-center gap-6 text-gray-400 text-sm font-rodin">
         <span className="flex items-center gap-2">
           <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">←→</kbd>
           or swipe
@@ -75,7 +78,7 @@ export default function Home() {
       </div>
 
       {/* Mobile instruction hint */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 lg:hidden text-gray-400 text-xs font-rodin text-center">
+      <div className="relative mt-8 pb-8 lg:hidden text-gray-400 text-xs font-rodin text-center">
         Swipe screen to navigate · Double-tap to select
       </div>
     </main>

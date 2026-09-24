@@ -60,9 +60,30 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  /* Vertical scrolling stays available so the copy is reachable when the
+     device and text cannot both fit, as on a phone held sideways. */
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: 'NewRodin Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/*
+ * Device width. Normally height-bound so the device and the copy share one
+ * screen; the 380px is the room the copy and the page hints need below it.
+ * The max() is a floor: without it a short window drives the subtraction
+ * negative and the device collapses to nothing.
+ * 2.25495 is the mockup's 1026/455 aspect, mirrored from PSPScene.
+ */
+:root {
+  --psp-device-width: min(90vw, max(280px, calc((90vh - 380px) * 2.25495)));
+}
+
+/* Landscape phones: fill the width and let the page scroll to the copy. */
+@media (max-height: 560px) {
+  :root {
+    --psp-device-width: 90vw;
+  }
 }
 
 body {
