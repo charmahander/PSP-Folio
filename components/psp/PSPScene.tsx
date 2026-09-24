@@ -20,10 +20,30 @@ const MOCKUP_ASPECT = MOCKUP_W / MOCKUP_H;
 /** The screen cut-out's own rect inside psp-mockup.svg. */
 const SCREEN_RECT = { x: 216, y: 41, w: 594, h: 340 };
 
+/** The analog nub's own rect inside psp-mockup.svg. */
+const NUB_RECT = { x: 86, y: 295.5, w: 75, h: 74 };
+
+/**
+ * The nub's waffle, drawn here rather than in the SVG so its cell stays a fixed
+ * number of real pixels. Inside the artwork the cell scales with the mockup,
+ * and on a phone the whole thing renders at about a third size, which puts the
+ * cell near 1px and its strokes under a device pixel - the texture washes out
+ * to a smudge. Pinning the cell to 4px keeps the bumps legible at any size; the
+ * count across the disc changes instead, which reads as a waffle regardless.
+ */
+const NUB_WAFFLE = [
+  'repeating-linear-gradient(45deg, rgba(255,255,255,0.16) 0 1px, rgba(0,0,0,0.46) 1px 2px, rgba(0,0,0,0) 2px 4px)',
+  'repeating-linear-gradient(-45deg, rgba(255,255,255,0.11) 0 1px, rgba(0,0,0,0.4) 1px 2px, rgba(0,0,0,0) 2px 4px)',
+].join(', ');
+
 const pct = (value: number, total: number) => `${((value / total) * 100).toFixed(4)}%`;
 
-/** Room kept below the device for the 80px gap and the intro copy. */
-const CONTENT_RESERVE_PX = 305;
+/**
+ * Room kept below the device for the gap, the intro copy, and the navigation
+ * hints pinned to the bottom of the page. Too small and the copy runs into
+ * those hints on short windows.
+ */
+const CONTENT_RESERVE_PX = 380;
 
 /** Device width, clamped by height so the artwork is never letterboxed inside its box. */
 const DEVICE_WIDTH = `min(90vw, calc((90vh - ${CONTENT_RESERVE_PX}px) * ${MOCKUP_ASPECT.toFixed(5)}))`;
@@ -111,6 +131,20 @@ export default function PSPScene() {
           style={{ display: 'block' }}
           priority
           unoptimized
+        />
+
+        <div
+          aria-hidden
+          className="absolute z-10 pointer-events-none"
+          style={{
+            left: pct(NUB_RECT.x, MOCKUP_W),
+            top: pct(NUB_RECT.y, MOCKUP_H),
+            width: pct(NUB_RECT.w, MOCKUP_W),
+            height: pct(NUB_RECT.h, MOCKUP_H),
+            borderRadius: '50%',
+            backgroundImage: NUB_WAFFLE,
+            backgroundSize: '4px 4px',
+          }}
         />
         
         {/* Interactive button overlay. Geometry taken from psp-mockup.svg: the

@@ -76,8 +76,8 @@ body {
 
 /* Phones sit the copy close under the device; wider screens get more air */
 .intro-copy {
-  margin-top: 24px;
-  font-size: 15px;
+  margin-top: 40px;
+  font-size: 12px;
 }
 
 @media (min-width: 768px) {

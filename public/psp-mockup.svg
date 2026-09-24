@@ -51,7 +51,7 @@
 <rect x="841" y="97" width="26" height="13" rx="6.5" fill="#1E1E1E"/>
 <rect x="841.5" y="97.5" width="25" height="12" rx="6" stroke="url(#paint18_linear_24_999)" stroke-opacity="0.3"/>
 <g filter="url(#filter3_n_24_999)">
-<ellipse cx="123.5" cy="334.5" rx="44" ry="43.5" fill="url(#nub_recess)"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="#191B1E"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="url(#nub_waffle)"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="url(#nub_light)"/><ellipse cx="123.5" cy="332.5" rx="36.4" ry="35.9" fill="none" stroke="url(#nub_rim)" stroke-width="2.4"/>
+<ellipse cx="123.5" cy="334.5" rx="44" ry="43.5" fill="url(#nub_recess)"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="#191B1E"/><ellipse cx="123.5" cy="332.5" rx="37.5" ry="37" fill="url(#nub_light)"/><ellipse cx="123.5" cy="332.5" rx="36.4" ry="35.9" fill="none" stroke="url(#nub_rim)" stroke-width="2.4"/>
 </g>
 <g filter="url(#filter4_i_24_999)">
 <circle cx="998.5" cy="304.5" r="5.5" fill="url(#paint19_radial_24_999)"/>
@@ -5634,12 +5634,7 @@
 
 
 
-<pattern id="nub_waffle" width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(45 123.5 332.5)">
-    <path d="M0 0.35 H3.4" stroke="#FFFFFF" stroke-opacity="0.17" stroke-width="0.7"/>
-    <path d="M0.35 0 V3.4" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="0.7"/>
-    <path d="M0 2.75 H3.4" stroke="#000000" stroke-opacity="0.55" stroke-width="0.75"/>
-    <path d="M2.75 0 V3.4" stroke="#000000" stroke-opacity="0.48" stroke-width="0.75"/>
-</pattern>
+
 <radialGradient id="nub_recess" cx="0.5" cy="0.5" r="0.5">
     <stop offset="0.72" stop-color="#000000" stop-opacity="0.8"/>
     <stop offset="0.88" stop-color="#000000" stop-opacity="0.32"/>
