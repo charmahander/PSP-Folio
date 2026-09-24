@@ -5652,12 +5652,6 @@
     <stop offset="1" stop-color="#000000" stop-opacity="0.75"/>
 </linearGradient>
 
-<pattern id="nub_waffle" width="6.25" height="6.25" patternUnits="userSpaceOnUse" patternTransform="rotate(45 123.5 332.5)">
-    <rect width="6.25" height="6.25" fill="#1B1D21"/>
-    <rect width="6.25" height="2.0" fill="#383C42"/>
-    <rect width="2.0" height="6.25" fill="#31353A"/>
-    <rect y="4.6" width="6.25" height="1.65" fill="#0A0B0D"/>
-    <rect x="4.6" width="1.65" height="6.25" fill="#0D0E10"/>
-</pattern>
+<pattern id="nub_waffle" width="9.375" height="9.375" patternUnits="userSpaceOnUse" patternTransform="rotate(45 123.5 332.5)"><rect width="9.375" height="9.375" fill="#0C0D0F"/><rect x="1" y="1" width="7.1" height="7.1" rx="1.7" fill="#2C2F34"/><rect x="1" y="1" width="7.1" height="2.4" rx="1.2" fill="#3C4046"/></pattern>
 </defs>
 </svg>

@@ -27,7 +27,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="w-screen min-h-screen overflow-x-hidden relative flex flex-col justify-center">
+    <main className="w-full app-shell overflow-x-hidden relative flex flex-col justify-center">
       {/* Light minimal background */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-gray-50 to-gray-100" />
       

@@ -79,11 +79,21 @@ body {
   --psp-device-width: min(90vw, max(280px, calc((90vh - 380px) * 2.25495)));
 }
 
-/* Landscape phones: fill the width and let the page scroll to the copy. */
+/* Landscape phones: fill the width edge to edge and scroll to the copy. */
 @media (max-height: 560px) {
   :root {
-    --psp-device-width: 90vw;
+    --psp-device-width: 100vw;
   }
+}
+
+/*
+ * dvh tracks the viewport as a mobile browser's toolbars come and go; vh is
+ * locked to the largest size, which leaves dead space under the content.
+ * The vh line stays first as a fallback for anything without dvh.
+ */
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 body {
