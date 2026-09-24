@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 
 /** Each block follows the one before it by this much. */
-const STAGGER_S = 0.3;
+const STAGGER_S = 0.15;
 
 const group = {
   hidden: {},
