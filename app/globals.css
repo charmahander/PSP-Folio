@@ -76,13 +76,31 @@ body {
  * 2.25495 is the mockup's 1026/455 aspect, mirrored from PSPScene.
  */
 :root {
-  --psp-device-width: min(90vw, max(280px, calc((90vh - 380px) * 2.25495)));
+  --psp-device-width: min(90vw, max(280px, calc((90svh - 380px) * 2.25495)));
 }
 
 /* Landscape phones: fill the width edge to edge and scroll to the copy. */
-@media (max-height: 560px) {
+@media (max-height: 560px) and (orientation: landscape) {
   :root {
     --psp-device-width: 100vw;
+  }
+}
+
+/*
+ * Portrait phones: bind the device to the height so the whole page fits and
+ * there is nothing to scroll at all. 480px is the room everything below it
+ * needs - measured at 452 on a 390 wide screen (40 padding, 40 gap, 252 copy,
+ * 40 padding, 80 hints) plus headroom for narrower phones, where the copy
+ * wraps to more lines. Spacing is untouched; only the device gives way.
+ */
+@media (max-width: 767px) and (orientation: portrait) {
+  :root {
+    --psp-device-width: min(90vw, max(200px, calc((100svh - 480px) * 2.25495)));
+  }
+
+  html,
+  body {
+    overscroll-behavior-y: none;
   }
 }
 
