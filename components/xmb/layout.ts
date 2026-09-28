@@ -54,6 +54,14 @@ export const ITEM_TITLE_SIZE = 13;
 export const ITEM_SUBTITLE_SIZE = 10;
 export const ITEM_TEXT_MAX = 224;
 
+// --- Detail panel ------------------------------------------------------------
+/** Share of the screen the detail panel and settled artwork take, from the right. */
+export const DETAIL_PANEL_SHARE = 0.55;
+/** Where the highlighted row's thumbnail moves to when it steps aside. */
+export const DETAIL_ROW_LEFT = 24;
+/** Clearance between the stepped-aside row's text and the panel. */
+export const DETAIL_ROW_GAP = 10;
+
 export function itemOffsetY(offset: number): number {
   return ITEM_Y + offset * ITEM_STEP - (offset < 0 ? ITEM_ABOVE_BAR_SKIP : 0);
 }

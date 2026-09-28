@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import BootSequence from '@/components/psp/BootSequence';
-import CaseStudyModal from '@/components/modals/CaseStudyModal';
-import AboutModal from '@/components/modals/AboutModal';
 
 const PSPScene = dynamic(() => import('@/components/psp/PSPScene'), {
   ssr: false,
@@ -17,7 +15,6 @@ const PSPScene = dynamic(() => import('@/components/psp/PSPScene'), {
 });
 
 export default function Home() {
-  const { isBooting, expandedContent, expandedAbout } = usePortfolioStore();
   const [showScene, setShowScene] = useState(false);
 
   useEffect(() => {
@@ -54,10 +51,6 @@ export default function Home() {
           <PSPScene />
         </div>
       )}
-
-      {/* Expanded content modals */}
-      {expandedContent && <CaseStudyModal />}
-      {expandedAbout && <AboutModal />}
 
       {/* Hints sit in flow: pinned to the bottom they landed on top of the
           copy once the page grew taller than the viewport. */}

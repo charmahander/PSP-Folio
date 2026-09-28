@@ -49,6 +49,11 @@ export default function PSPScene() {
   const pspRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
 
+  // Until START has booted the device, the d-pad and X / O do nothing and do
+  // not even take the pointer - START is the only live control, as it is the
+  // one the screen is asking for.
+  const controlsLive = hasStarted && !isBooting ? 'pointer-events-auto' : 'pointer-events-none';
+
   // Swipe handlers for the screen (use mouse click sounds for touch interactions)
   const handleSwipeLeft = useCallback(() => {
     playNavigate();
@@ -123,7 +128,7 @@ export default function PSPScene() {
               playNavigate();
               navigateUp();
             }}
-            className="absolute bg-transparent pointer-events-auto"
+            className={`absolute bg-transparent ${controlsLive}`}
             style={hitArea(117, 142.75, 54, 52.5)}
             aria-label="Navigate Up"
           />
@@ -133,7 +138,7 @@ export default function PSPScene() {
               playNavigate();
               navigateDown();
             }}
-            className="absolute bg-transparent pointer-events-auto"
+            className={`absolute bg-transparent ${controlsLive}`}
             style={hitArea(117, 249.25, 54, 52.5)}
             aria-label="Navigate Down"
           />
@@ -143,7 +148,7 @@ export default function PSPScene() {
               playNavigate();
               navigateLeft();
             }}
-            className="absolute bg-transparent pointer-events-auto"
+            className={`absolute bg-transparent ${controlsLive}`}
             style={hitArea(64.5, 196, 51, 54)}
             aria-label="Navigate Left"
           />
@@ -153,7 +158,7 @@ export default function PSPScene() {
               playNavigate();
               navigateRight();
             }}
-            className="absolute bg-transparent pointer-events-auto"
+            className={`absolute bg-transparent ${controlsLive}`}
             style={hitArea(169, 196, 50, 54)}
             aria-label="Navigate Right"
           />
@@ -163,7 +168,7 @@ export default function PSPScene() {
               playSelect();
               selectItem();
             }}
-            className="absolute bg-transparent rounded-full pointer-events-auto"
+            className={`absolute bg-transparent rounded-full ${controlsLive}`}
             style={hitArea(918, 254.5, 55, 55)}
             aria-label="Select (X)"
           />
@@ -173,7 +178,7 @@ export default function PSPScene() {
               playBack();
               goBack();
             }}
-            className="absolute bg-transparent rounded-full pointer-events-auto"
+            className={`absolute bg-transparent rounded-full ${controlsLive}`}
             style={hitArea(977.5, 195.5, 55, 55)}
             aria-label="Back (Circle)"
           />

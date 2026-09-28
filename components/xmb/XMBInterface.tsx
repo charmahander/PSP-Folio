@@ -7,6 +7,8 @@ import WaveBackground from './WaveBackground';
 import ItemArtwork from './ItemArtwork';
 import CategoryBar from './CategoryBar';
 import ItemList from './ItemList';
+import DetailPanel from './DetailPanel';
+import PhotoViewer from './PhotoViewer';
 import StatusBar from './StatusBar';
 import BootSequence from '../psp/BootSequence';
 import StartGate from '../psp/StartGate';
@@ -62,6 +64,10 @@ export default function XMBInterface() {
             <CategoryBar />
             <ItemList />
           </motion.div>
+
+          {/* What X opens, drawn on the screen rather than over the page */}
+          <DetailPanel />
+          <PhotoViewer />
         </>
       )}
     </div>

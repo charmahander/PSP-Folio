@@ -19,7 +19,25 @@ import {
   ITEM_TITLE_SIZE,
   ITEM_SUBTITLE_SIZE,
   ITEM_TEXT_MAX,
+  SCREEN_W,
+  DETAIL_PANEL_SHARE,
+  DETAIL_ROW_LEFT,
+  DETAIL_ROW_GAP,
 } from './layout';
+
+/** Every gallery thumbnail is cropped to Goku '21's own 2048x1359 frame. */
+const GALLERY_ASPECT = 2048 / 1359;
+
+/**
+ * Where each crop is anchored. The portraits lose most of their height to a
+ * landscape frame, so a centred crop would cut through faces.
+ */
+const GALLERY_CROP: { [id: string]: string } = {
+  'gallery-1': '50% 30%',
+  'gallery-3': '50% 62%',
+  'gallery-4': '50% 45%',
+  'gallery-7': '50% 28%',
+};
 
 // Map item types to PNG icon paths
 const itemIconPaths: { [key: string]: string } = {
@@ -42,6 +60,8 @@ const itemIconPaths: { [key: string]: string } = {
 const itemIconOverrides: { [key: string]: string } = {
   'profile': '/icons/users.png',
   'manifesto': '/icons/web.png',
+  'design-manifesto': '/icons/cycle.svg',
+  'testimonials': '/icons/users.png',
   'after-hours': '/icons/home.png',
   'internet-browser': '/icons/web.png',
   'remote-play': '/icons/connect.png',
@@ -66,6 +86,9 @@ const itemIconOverrides: { [key: string]: string } = {
 
 function getItemIconPath(item: XMBItem | XMBChildItem): string {
   if (item.id && itemIconOverrides[item.id]) return itemIconOverrides[item.id];
+
+  // Songs carry album art and photos carry themselves
+  if ('thumbnail' in item && item.thumbnail) return item.thumbnail;
 
   if (item.id?.startsWith('theme-')) return '/icons/settings.png';
   if (item.id?.startsWith('song')) return '/icons/saved_filled.png';
@@ -113,6 +136,9 @@ export default function ItemList() {
     subfolderItems,
     goBack,
     setTheme,
+    expandedContent,
+    expandedAbout,
+    settledArt,
   } = usePortfolioStore();
   const { playNavigate, playSelect, playBack } = useAudio();
 
@@ -135,6 +161,16 @@ export default function ItemList() {
 
   const focusSize = isInSubfolder ? SUB_ICON_FOCUS : ITEM_ICON_FOCUS;
   const bodySize = isInSubfolder ? SUB_ICON_BODY : ITEM_ICON_BODY;
+
+  // With a panel open or the project's art up, the highlighted row steps out
+  // of the column to the screen's left edge, and its text stops short of the
+  // right-hand 55% so nothing runs underneath it.
+  const stepAside = Boolean(expandedContent || expandedAbout || settledArt);
+  const rowLeft = ITEM_X - focusSize / 2;
+  const asideShift = DETAIL_ROW_LEFT - rowLeft;
+  const panelLeft = SCREEN_W * (1 - DETAIL_PANEL_SHARE);
+  const asideTextMax =
+    panelLeft - DETAIL_ROW_GAP - (DETAIL_ROW_LEFT + focusSize + ITEM_TEXT_GAP);
 
   const handleItemClick = (index: number) => {
     const clickedItem = items?.[index];
@@ -197,6 +233,9 @@ export default function ItemList() {
           const opacity = distance === 0 ? 1 : distance === 1 ? 0.6 : distance === 2 ? 0.4 : 0.25;
           const iconSize = isSelected ? focusSize : bodySize;
           const subtext = getItemSubtext(item);
+          const aside = stepAside && isSelected;
+          const isPhoto = item.id.startsWith('gallery-');
+          const isSong = item.id.startsWith('song-');
 
           return (
             <motion.div
@@ -208,8 +247,12 @@ export default function ItemList() {
                 height: px(focusSize),
                 gap: px(ITEM_TEXT_GAP),
               }}
-              animate={{ y: px(itemOffsetY(offset) - ITEM_Y), opacity }}
-              transition={{ type: 'tween', duration: 0.14, ease: 'easeOut' }}
+              animate={{
+                x: px(aside ? asideShift : 0),
+                y: px(itemOffsetY(offset) - ITEM_Y),
+                opacity,
+              }}
+              transition={{ type: 'tween', duration: aside || stepAside ? 0.3 : 0.14, ease: 'easeOut' }}
               onClick={() => handleItemClick(index)}
             >
               {/* Fixed slot so body and focus sizes share one centre line */}
@@ -217,16 +260,29 @@ export default function ItemList() {
                 className="flex-shrink-0 flex items-center justify-center"
                 style={{ width: px(focusSize), height: px(focusSize) }}
               >
+                {/* Photos are cropped to one landscape frame and album art to
+                    the square icon, rather than letterboxed inside the slot. */}
                 <motion.img
                   src={getItemIconPath(item)}
                   alt={item.title}
-                  animate={{ width: px(iconSize), height: px(iconSize) }}
+                  animate={{
+                    width: px(iconSize),
+                    height: px(isPhoto ? iconSize / GALLERY_ASPECT : iconSize),
+                  }}
                   transition={{ duration: 0.14, ease: 'easeOut' }}
-                  style={{ objectFit: 'contain', display: 'block' }}
+                  style={{
+                    objectFit: isPhoto || isSong ? 'cover' : 'contain',
+                    objectPosition: GALLERY_CROP[item.id] ?? 'center',
+                    display: 'block',
+                  }}
                 />
               </div>
 
-              <div className="flex flex-col" style={{ maxWidth: px(ITEM_TEXT_MAX) }}>
+              <motion.div
+                className="flex flex-col"
+                animate={{ maxWidth: px(aside ? asideTextMax : ITEM_TEXT_MAX) }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
                 {/* Kept mounted and faded by selection - mounting inside a
                     presence wrapper skips the enter animation. */}
                 <motion.div
@@ -236,9 +292,11 @@ export default function ItemList() {
                   style={{
                     fontSize: px(ITEM_TITLE_SIZE),
                     lineHeight: 1.25,
-                    whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
+                    ...(aside
+                      ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }
+                      : { whiteSpace: 'nowrap' as const }),
                   }}
                 >
                   {item.title}
@@ -252,15 +310,18 @@ export default function ItemList() {
                       marginTop: px(2),
                       fontSize: px(ITEM_SUBTITLE_SIZE),
                       lineHeight: 1.35,
-                      whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
+                      // Stepped aside there is less width, so allow two lines
+                      ...(aside
+                        ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }
+                        : { whiteSpace: 'nowrap' as const }),
                     }}
                   >
                     {subtext}
                   </motion.div>
                 )}
-              </div>
+              </motion.div>
             </motion.div>
           );
         })}

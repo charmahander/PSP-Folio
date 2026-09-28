@@ -18,6 +18,9 @@ export interface CaseStudyContent {
   overview: string;
   role: string;
   duration: string;
+  /** Shown in the detail panel's Skills / Timeline rows. */
+  skills?: string;
+  timeline?: string;
   tools: string[];
   sections: CaseStudySection[];
 }
@@ -43,6 +46,21 @@ export interface AboutItem {
   gifUrl?: string;
   bio?: string;
   photo?: string;
+  /** Body of the in-screen detail panel. */
+  detail?: AboutDetail;
+}
+
+/**
+ * Prose for narrative entries, a list for ones that are a set of separate
+ * points - the panel lays each out to suit.
+ */
+export type AboutDetail =
+  | { kind: 'paragraphs'; body: string[] }
+  | { kind: 'list'; items: { title: string; body: string }[] };
+
+export interface ViewedPhoto {
+  src: string;
+  title: string;
 }
 
 export interface XMBChildItem {
@@ -53,6 +71,7 @@ export interface XMBChildItem {
   description?: string;
   url?: string;
   icon?: string;
+  thumbnail?: string;
 }
 
 // `type` and `children` are omitted from the inherited AboutItem shape because

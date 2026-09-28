@@ -15,6 +15,7 @@ export function useXMBNavigation() {
     isBooting,
     expandedContent,
     expandedAbout,
+    expandedPhoto,
   } = usePortfolioStore();
   
   const { playNavigate, playSelect, playBack, playCategory } = useAudio();
@@ -23,14 +24,20 @@ export function useXMBNavigation() {
     // Don't navigate during boot or when modal is open
     if (isBooting) return;
     
-    // Allow escape to close modal
-    if ((expandedContent || expandedAbout) && e.key === 'Escape') {
-      playBack();
-      goBack();
+    // With a panel or photo open, Escape / O close it and Up / Down scroll the
+    // panel (the store routes them there); nothing else reaches the menu.
+    if (expandedContent || expandedAbout || expandedPhoto) {
+      if (e.key === 'Escape' || e.key === 'o' || e.key === 'O') {
+        e.preventDefault();
+        playBack();
+        goBack();
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (e.key === 'ArrowUp') navigateUp();
+        else navigateDown();
+      }
       return;
     }
-    
-    if (expandedContent || expandedAbout) return;
 
     switch (e.key) {
       case 'ArrowLeft':
@@ -72,6 +79,7 @@ export function useXMBNavigation() {
     isBooting,
     expandedContent,
     expandedAbout,
+    expandedPhoto,
     navigateLeft,
     navigateRight,
     navigateUp,

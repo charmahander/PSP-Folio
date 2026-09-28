@@ -25,6 +25,25 @@ const block = {
   },
 };
 
+/** An app icon set into the line, sized to the text around it. */
+function ToolMark({ src, alt }: { src: string; alt: string }) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width={16}
+      height={16}
+      style={{
+        display: 'inline-block',
+        width: '1.3em',
+        height: '1.3em',
+        verticalAlign: '-0.3em',
+        marginRight: '0.25em',
+      }}
+    />
+  );
+}
+
 export default function IntroText() {
   return (
     <motion.div
@@ -39,15 +58,16 @@ export default function IntroText() {
       }}
     >
       <motion.p variants={block}>
-        {'Welcome to '}
-        <strong style={{ fontWeight: 700 }}>PSPFolio</strong>
-        {
-          ': a fun reimagining of my old PSP 1000 if it was my portfolio/website itself (as if the device IS the folio!).'
-        }
+        {'A fun reimagining of my old '}
+        <strong style={{ fontWeight: 700 }}>PSP 1000</strong>
+        {' if it was a portfolio/website i.e. where the device IS the folio!'}
       </motion.p>
       <motion.p variants={block} style={{ marginTop: '14px' }}>
+        {'Built with '}
+        <ToolMark src="/logos/figma.png" alt="Figma" />
+        <ToolMark src="/logos/claude.png" alt="Claude" />
         {
-          "Built the device's design on Figma, brought it to life with Cursor with Sonnet last year, then revamped it recently in Claude Code with Opus 5. It's navigable with your mouse, keys, touch, and even the console buttons; and for added nostalgia, the original sounds! The XMB Interface was tricky to build but you learn a lot from the '00s. Enjoy!"
+          ' and navigable with your mouse, keyboard, touch, and console buttons. For added nostalgia, playing the original sounds!'
         }
       </motion.p>
       <motion.p variants={block} style={{ marginTop: '20px' }}>

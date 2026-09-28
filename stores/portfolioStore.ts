@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { Category, XMBChildItem, XMBItem, CaseStudy, AboutItem } from '@/types/xmb';
+import type { Category, XMBChildItem, XMBItem, CaseStudy, AboutItem, ViewedPhoto } from '@/types/xmb';
+import { TRACKS } from '@/data/music';
 import { THEME_OPTIONS, BY_MONTH_INDEX } from '@/components/xmb/themes';
 
 interface PortfolioState {
@@ -13,6 +14,11 @@ interface PortfolioState {
   themeIndex: number;
   expandedContent: CaseStudy | null;
   expandedAbout: AboutItem | null;
+  expandedPhoto: ViewedPhoto | null;
+  /** Art the cursor has rested on long enough to take the background. */
+  settledArt: string | null;
+  /** Bumped by Up/Down while a detail panel is open, which scrolls it. */
+  detailScroll: { dir: 1 | -1; seq: number };
   isInSubfolder: boolean;
   subfolderItems: XMBChildItem[] | null;
   activeFolderIndex: number | null;
@@ -35,6 +41,7 @@ interface PortfolioState {
   finishBooting: () => void;
   setExpandedContent: (content: CaseStudy | null) => void;
   setExpandedAbout: (content: AboutItem | null) => void;
+  setSettledArt: (art: string | null) => void;
   toggleMute: () => void;
   volume: number;
   adjustVolume: (delta: number) => void;
@@ -45,6 +52,10 @@ interface PortfolioState {
   categories: Category[];
 }
 
+/** While a panel or photo is up, the d-pad drives it instead of the menu. */
+const isDetailOpen = (s: Pick<PortfolioState, 'expandedContent' | 'expandedAbout' | 'expandedPhoto'>) =>
+  Boolean(s.expandedContent || s.expandedAbout || s.expandedPhoto);
+
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   // Settings sits leftmost as it does on a real PSP, so open on Games instead.
   currentCategory: 1,
@@ -54,6 +65,9 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   themeIndex: 0,
   expandedContent: null,
   expandedAbout: null,
+  expandedPhoto: null,
+  settledArt: null,
+  detailScroll: { dir: 1, seq: 0 },
   isInSubfolder: false,
   subfolderItems: null,
   activeFolderIndex: null,
@@ -93,13 +107,15 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
           id: 'project-1',
           title: 'PaidPiper',
           type: 'caseStudy',
-          tagline: 'Music business co-pilot for indie artists',
+          tagline: 'Music Business co-pilot for indie artists',
           categories: ['UX Design', 'Mobile'],
           thumbnail: '/images/projects/project-1.png',
           backgroundImage: '/images/bg-1.jpg',
           content: {
             overview: 'A comprehensive case study exploring mobile gaming UX.',
-            role: 'Lead UX Designer',
+            role: 'Designer - Product & Strategy',
+            skills: 'Product Design, Business Strategy',
+            timeline: 'Sept ’24 - May ’25',
             duration: '3 months',
             tools: ['Figma', 'Protopie', 'Unity'],
             sections: [
@@ -160,50 +176,60 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
       name: 'About',
       icon: 'about',
       items: [
+        // Each opens the in-screen detail panel. Placeholder copy until the
+        // real text is in: prose for the narrative entries, a list for the
+        // ones that are a set of separate points.
         {
           id: 'origin-story',
           title: 'The origin story',
           type: 'item',
           description: 'Foundational background and journey.',
+          detail: {
+            kind: 'paragraphs',
+            body: [
+              'Placeholder - a short introduction: who I am, where I grew up, and what drew me to design.',
+              'Placeholder - the path from there to product design and strategy, and what I care about now.',
+            ],
+          },
         },
         {
           id: 'design-manifesto',
           title: 'Design Manifesto',
-          type: 'folder',
-          children: [
-            { id: 'manifesto-1', title: '1', type: 'item', description: 'Principle 1' },
-            { id: 'manifesto-2', title: '2', type: 'item', description: 'Principle 2' },
-            { id: 'manifesto-3', title: '3', type: 'item', description: 'Principle 3' },
-            { id: 'manifesto-4', title: '4', type: 'item', description: 'Principle 4' },
-            { id: 'manifesto-5', title: '5', type: 'item', description: 'Principle 5' },
-            { id: 'manifesto-6', title: '6', type: 'item', description: 'Principle 6' },
-          ],
+          type: 'item',
+          description: 'Principles I design by.',
+          detail: {
+            kind: 'list',
+            items: [1, 2, 3, 4, 5, 6].map((n) => ({
+              title: `Principle ${n}`,
+              body: 'Placeholder - one or two lines on what this principle means in practice.',
+            })),
+          },
         },
         {
           id: 'skills',
           title: 'Skills',
-          type: 'folder',
-          children: [
-            { id: 'skill-1', title: '1', type: 'item', description: 'Skill area 1' },
-            { id: 'skill-2', title: '2', type: 'item', description: 'Skill area 2' },
-            { id: 'skill-3', title: '3', type: 'item', description: 'Skill area 3' },
-            { id: 'skill-4', title: '4', type: 'item', description: 'Skill area 4' },
-            { id: 'skill-5', title: '5', type: 'item', description: 'Skill area 5' },
-            { id: 'skill-6', title: '6', type: 'item', description: 'Skill area 6' },
-          ],
+          type: 'item',
+          description: 'What I bring to a team.',
+          detail: {
+            kind: 'paragraphs',
+            body: [
+              'Placeholder - design skills: research, interaction, visual and prototyping.',
+              'Placeholder - strategy and product skills, and the tools I work in day to day.',
+            ],
+          },
         },
         {
           id: 'testimonials',
           title: 'Testimonials',
-          type: 'folder',
-          children: [
-            { id: 'testimonial-1', title: '1', type: 'item', description: 'Testimonial 1' },
-            { id: 'testimonial-2', title: '2', type: 'item', description: 'Testimonial 2' },
-            { id: 'testimonial-3', title: '3', type: 'item', description: 'Testimonial 3' },
-            { id: 'testimonial-4', title: '4', type: 'item', description: 'Testimonial 4' },
-            { id: 'testimonial-5', title: '5', type: 'item', description: 'Testimonial 5' },
-            { id: 'testimonial-6', title: '6', type: 'item', description: 'Testimonial 6' },
-          ],
+          type: 'item',
+          description: 'Words from people I have worked with.',
+          detail: {
+            kind: 'list',
+            items: [1, 2, 3, 4, 5, 6].map((n) => ({
+              title: `Name ${n}, Role at Company`,
+              body: 'Placeholder - a quote from someone I have worked with.',
+            })),
+          },
         },
       ],
     },
@@ -225,16 +251,18 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
       name: 'Music',
       icon: 'music',
       items: [
-        { id: 'song-1', title: 'Song 1', type: 'item' },
-        { id: 'song-2', title: 'Song 2', type: 'item' },
-        { id: 'song-3', title: 'Song 3', type: 'item' },
-        { id: 'song-4', title: 'Song 4', type: 'item' },
-        { id: 'song-5', title: 'Song 5', type: 'item' },
-        { id: 'song-6', title: 'Song 6', type: 'item' },
-        { id: 'song-7', title: 'Song 7', type: 'item' },
-        { id: 'song-8', title: 'Song 8', type: 'item' },
-        { id: 'song-9', title: 'Song 9', type: 'item' },
-        { id: 'song-10', title: 'Song 10', type: 'item' },
+        // Straight from the playlist snapshot; X opens the track on Spotify.
+        ...TRACKS.map(
+          (track) =>
+            ({
+              id: `song-${track.id}`,
+              title: track.title,
+              type: 'link',
+              subtitle: `${track.artist} · ${track.year}`,
+              thumbnail: `/images/music/${track.id}.jpg`,
+              url: `https://open.spotify.com/track/${track.id}`,
+            }) as XMBItem,
+        ),
       ],
     },
     {
@@ -242,20 +270,20 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
       name: 'Gallery',
       icon: 'gallery',
       items: [
-        // Ids stay bound to their image files; titles renumber so the list
-        // reads 1-7 rather than showing gaps where 2, 8 and 9 were.
-        { id: 'gallery-1', title: 'Photo/Video 1', type: 'item' },
-        { id: 'gallery-3', title: 'Photo/Video 2', type: 'item' },
-        { id: 'gallery-4', title: 'Photo/Video 3', type: 'item' },
-        { id: 'gallery-5', title: 'Photo/Video 4', type: 'item' },
-        { id: 'gallery-6', title: 'Photo/Video 5', type: 'item' },
-        { id: 'gallery-7', title: 'Photo/Video 6', type: 'item' },
-        { id: 'gallery-10', title: 'Photo/Video 7', type: 'item' },
+        // Ids stay bound to their image files, which is why they skip numbers.
+        { id: 'gallery-1', title: 'Snow Day in Sav', type: 'item', thumbnail: '/images/gallery/gallery-1.png' },
+        { id: 'gallery-3', title: 'SCAD Grad', type: 'item', thumbnail: '/images/gallery/gallery-3.png' },
+        { id: 'gallery-4', title: 'Vinyl Daze', type: 'item', thumbnail: '/images/gallery/gallery-4.png' },
+        { id: 'gallery-5', title: 'Goku ’21', type: 'item', thumbnail: '/images/gallery/gallery-5.png' },
+        { id: 'gallery-6', title: 'Hard at work', type: 'item', thumbnail: '/images/gallery/gallery-6.png' },
+        { id: 'gallery-7', title: 'First tat', type: 'item', thumbnail: '/images/gallery/gallery-7.png' },
+        { id: 'gallery-10', title: 'That one guy at every party', type: 'item', thumbnail: '/images/gallery/gallery-10.png' },
       ],
     },
   ] as Category[],
   
   setCategory: (index) => {
+    if (isDetailOpen(get())) return;
     const { categories } = get();
     if (categories.length === 0) return;
     const nextIndex = (index + categories.length) % categories.length;
@@ -263,6 +291,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   
   setItem: (index) => {
+    if (isDetailOpen(get())) return;
     const { categories, currentCategory, isInSubfolder, subfolderItems } = get();
     const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
     if (!items || items.length === 0) return;
@@ -271,6 +300,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   
   navigateLeft: () => {
+    if (isDetailOpen(get())) return;
     const { currentCategory, isInSubfolder, categories } = get();
     if (isInSubfolder) {
       set({ isInSubfolder: false, subfolderItems: null, currentItem: 0, activeFolderIndex: null, activeFolderTitle: null });
@@ -281,7 +311,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   
   navigateRight: () => {
-    const { currentCategory, categories, isInSubfolder, currentItem } = get();
+    if (isDetailOpen(get())) return;
+    const { currentCategory, categories, isInSubfolder } = get();
     
     // If in subfolder, don't navigate categories
     if (isInSubfolder) return;
@@ -293,6 +324,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   
   navigateUp: () => {
+    if (isDetailOpen(get())) return scrollDetail(-1);
     const { currentItem, isInSubfolder, subfolderItems, currentCategory, categories } = get();
     const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
     if (!items || items.length === 0) return;
@@ -302,6 +334,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   
   navigateDown: () => {
+    if (isDetailOpen(get())) return scrollDetail(1);
     const { currentItem, currentCategory, categories, isInSubfolder, subfolderItems } = get();
     const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
     if (!items || items.length === 0) return;
@@ -315,8 +348,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
     const item = items?.[currentItem];
     
-    if (!item) return;
-    
+    if (!item || isDetailOpen(get())) return;
+
     // Case study content
     if (item.type === 'caseStudy' && 'content' in item && item.content) {
       set({ expandedContent: item as CaseStudy });
@@ -348,6 +381,12 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
       return;
     }
 
+    // Gallery photos open full screen inside the device
+    if (item.id.startsWith('gallery-') && item.thumbnail) {
+      set({ expandedPhoto: { src: item.thumbnail, title: item.title } });
+      return;
+    }
+
     // Links
     if (item.type === 'link' && item.url) {
       window.open(item.url, '_blank');
@@ -376,8 +415,13 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   
   goBack: () => {
-    const { expandedContent, expandedAbout, isInSubfolder } = get();
-    
+    const { expandedContent, expandedAbout, expandedPhoto, isInSubfolder } = get();
+
+    if (expandedPhoto) {
+      set({ expandedPhoto: null });
+      return;
+    }
+
     if (expandedContent) {
       set({ expandedContent: null });
       return;
@@ -408,6 +452,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   setExpandedContent: (content) => set({ expandedContent: content }),
   
   setExpandedAbout: (content) => set({ expandedAbout: content }),
+
+  setSettledArt: (art) => set({ settledArt: art }),
   
   toggleMute: () => {
     // Use functional update to prevent unnecessary re-renders
@@ -418,3 +464,11 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   
   exitSubfolder: () => set({ isInSubfolder: false, subfolderItems: null, currentItem: 0 }),
 }));
+
+
+/** Up/Down on an open panel scroll it; the panel watches this counter. */
+function scrollDetail(dir: 1 | -1) {
+  usePortfolioStore.setState((s) =>
+    s.expandedPhoto ? {} : { detailScroll: { dir, seq: s.detailScroll.seq + 1 } },
+  );
+}

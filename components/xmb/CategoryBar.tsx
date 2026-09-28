@@ -27,7 +27,11 @@ const categoryIconPaths: { [key: string]: string } = {
 };
 
 export default function CategoryBar() {
-  const { categories, currentCategory, setCategory, isInSubfolder } = usePortfolioStore();
+  const { categories, currentCategory, setCategory, isInSubfolder, expandedContent, expandedAbout, settledArt } =
+    usePortfolioStore();
+  // Categories right of the active one fall inside the right-hand 55% that
+  // the detail panel and settled artwork take, so they step out of the way.
+  const rightCleared = Boolean(expandedContent || expandedAbout || settledArt);
   const { playCategory } = useAudio();
 
   const handleCategoryClick = (index: number) => {
@@ -59,7 +63,8 @@ export default function CategoryBar() {
             }}
             animate={{
               x: px(offset * CATEGORY_STEP),
-              opacity: isSelected ? 1 : distance === 1 ? 0.55 : 0.3,
+              opacity:
+                rightCleared && offset > 0 ? 0 : isSelected ? 1 : distance === 1 ? 0.55 : 0.3,
             }}
             transition={{ type: 'tween', duration: 0.18, ease: 'easeOut' }}
             onClick={() => handleCategoryClick(index)}
