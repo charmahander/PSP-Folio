@@ -24,7 +24,10 @@ export default function ItemArtwork() {
     subfolderItems,
     settledArt: settled,
     setSettledArt,
+    expandedContent,
+    expandedAbout,
   } = usePortfolioStore();
+  const panelOpen = Boolean(expandedContent || expandedAbout);
 
   const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
   const item = items?.[currentItem];
@@ -36,15 +39,17 @@ export default function ItemArtwork() {
   // Only art the cursor has rested on is shown, so scrolling the column does
   // not strobe a background per row. Any move clears it immediately. Kept in
   // the store because the menu moves the highlighted row aside for it.
+  // A panel suspends it, and closing one starts the wait over: the row goes
+  // back into the column and the art returns only if the cursor stays put.
   useEffect(() => {
     setSettledArt(null);
-    if (!art) return;
+    if (!art || panelOpen) return;
     const id = setTimeout(() => setSettledArt(art), DWELL_MS);
     return () => {
       clearTimeout(id);
       setSettledArt(null);
     };
-  }, [art, setSettledArt]);
+  }, [art, panelOpen, setSettledArt]);
 
   return (
     <AnimatePresence mode="wait">

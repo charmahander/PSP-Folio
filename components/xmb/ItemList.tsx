@@ -301,7 +301,8 @@ export default function ItemList() {
                 >
                   {item.title}
                 </motion.div>
-                {subtext && (
+                {/* Stepped aside, the row is just its name beside the panel */}
+                {subtext && !aside && (
                   <motion.div
                     animate={{ opacity: isSelected ? 0.7 : 0 }}
                     transition={{ duration: 0.22, ease: 'easeOut' }}

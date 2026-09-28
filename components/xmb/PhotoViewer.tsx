@@ -44,18 +44,18 @@ export default function PhotoViewer() {
               playBack();
               goBack();
             }}
-            className="absolute flex items-center justify-center rounded-full text-white"
+            className="absolute flex items-center justify-center text-white"
             style={{
               top: px(GUTTER),
               left: px(GUTTER),
               width: px(22),
               height: px(22),
-              background: 'rgba(0,0,0,0.55)',
-              border: `${px(1)} solid rgba(255,255,255,0.35)`,
+              // No disc behind it; a shadow keeps it visible over a light photo
+              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.7))',
             }}
             aria-label="Close photo"
           >
-            <svg style={{ width: px(10), height: px(10) }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+            <svg style={{ width: px(14), height: px(14) }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
           </button>

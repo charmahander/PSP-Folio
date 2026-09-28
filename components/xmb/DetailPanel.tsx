@@ -41,10 +41,12 @@ export default function DetailPanel() {
           className="absolute top-0 right-0 bottom-0 z-30 text-white"
           style={{
             width: `${DETAIL_PANEL_SHARE * 100}%`,
-            background:
-              'linear-gradient(160deg, rgba(22,22,24,0.86) 0%, rgba(40,40,43,0.8) 55%, rgba(74,74,78,0.74) 100%)',
-            backdropFilter: `blur(${px(10)})`,
-            WebkitBackdropFilter: `blur(${px(10)})`,
+            // Blur alone, no tinted fill: whatever the menu shows behind the
+            // panel reads through it. A shadow on the text keeps it legible
+            // over bright artwork without a solid backing.
+            backdropFilter: `blur(${px(22)}) saturate(1.2)`,
+            WebkitBackdropFilter: `blur(${px(22)}) saturate(1.2)`,
+            textShadow: '0 1px 3px rgba(0,0,0,0.55)',
           }}
           initial={{ opacity: 0, x: '8%' }}
           animate={{ opacity: 1, x: 0 }}
@@ -150,6 +152,15 @@ function AboutBody({ item }: { item: AboutItem }) {
         <p style={{ marginTop: px(4), fontSize: px(BODY_SIZE), opacity: 0.7 }}>
           {item.description}
         </p>
+      )}
+
+      {item.photo && (
+        <img
+          src={item.photo}
+          alt={item.title}
+          className="w-full block"
+          style={{ marginTop: px(12), aspectRatio: '1.9', objectFit: 'cover', objectPosition: '50% 30%' }}
+        />
       )}
 
       <div style={{ marginTop: px(12), fontSize: px(BODY_SIZE), lineHeight: 1.55 }}>

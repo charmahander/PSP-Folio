@@ -184,6 +184,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
           title: 'The origin story',
           type: 'item',
           description: 'Foundational background and journey.',
+          photo: '/images/about/origin-story.png',
           detail: {
             kind: 'paragraphs',
             body: [
