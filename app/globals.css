@@ -87,13 +87,17 @@ body {
 }
 
 /*
- * dvh tracks the viewport as a mobile browser's toolbars come and go; vh is
- * locked to the largest size, which leaves dead space under the content.
- * The vh line stays first as a fallback for anything without dvh.
+ * svh is the viewport with the browser's toolbars showing, and unlike dvh it
+ * does not change as they retract. That matters because this height is what
+ * the auto margins centre against: with dvh the centring recomputed mid-scroll
+ * and the content snapped from centred to top-aligned, reading as the space
+ * above it vanishing. A constant height keeps the layout still while scrolling.
+ * Any space the retracting toolbar uncovers is painted by the html background.
+ * vh stays first as a fallback for anything without svh.
  */
 .app-shell {
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100svh;
 }
 
 /*
