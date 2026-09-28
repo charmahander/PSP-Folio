@@ -90,7 +90,7 @@ export default function PSPScene() {
   }, [selectItem, playSelect]);
 
   return (
-    <div className="w-full relative flex flex-col items-center justify-center py-8">
+    <div className="w-full relative flex flex-col items-center justify-center py-10">
       {/* PSP Mockup and Screen UI - 90% of screen */}
       <motion.div 
         ref={pspRef}

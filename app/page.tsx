@@ -27,7 +27,10 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="w-full app-shell overflow-x-hidden relative flex flex-col justify-center">
+    // Centred by auto margins rather than justify-center: autos collapse to
+    // zero when content outgrows the screen, where centring would instead push
+    // the top out of reach above the scroll origin.
+    <main className="w-full app-shell overflow-x-hidden relative flex flex-col">
       {/* Light minimal background */}
       <div className="absolute inset-0 bg-gradient-to-b from-white via-gray-50 to-gray-100" />
       
@@ -47,7 +50,7 @@ export default function Home() {
       {showScene && (
         /* In flow, not pinned: an absolute wrapper cannot grow the page, so
            the copy below the device was unreachable on short windows. */
-        <div className="relative">
+        <div className="relative mt-auto">
           <PSPScene />
         </div>
       )}
@@ -58,7 +61,7 @@ export default function Home() {
 
       {/* Hints sit in flow: pinned to the bottom they landed on top of the
           copy once the page grew taller than the viewport. */}
-      <div className="relative mt-8 pb-8 mx-auto w-fit hidden lg:flex items-center gap-6 text-gray-400 text-sm font-rodin">
+      <div className="relative mt-8 pb-8 mb-auto mx-auto w-fit hidden lg:flex items-center gap-6 text-gray-400 text-sm font-rodin">
         <span className="flex items-center gap-2">
           <kbd className="px-2 py-1 bg-gray-200 rounded text-xs">←→</kbd>
           or swipe
@@ -78,7 +81,7 @@ export default function Home() {
       </div>
 
       {/* Mobile instruction hint */}
-      <div className="relative mt-8 pb-8 lg:hidden text-gray-400 text-xs font-rodin text-center">
+      <div className="relative mt-8 pb-8 mb-auto lg:hidden text-gray-400 text-xs font-rodin text-center">
         Swipe screen to navigate · Double-tap to select
       </div>
     </main>

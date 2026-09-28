@@ -96,8 +96,16 @@ body {
   min-height: 100dvh;
 }
 
-body {
-  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+/*
+ * The page gradient lives on <html> so it paints the canvas itself. On body it
+ * only ever covers body's own box, and a mobile browser retracting its toolbar
+ * grows the viewport past that box mid-scroll, leaving bare white underneath.
+ */
+html {
+  background-color: #eef0f2;
+  background-image: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 /* Even out line lengths so no line is left short and ragged */
