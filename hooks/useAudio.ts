@@ -29,7 +29,11 @@ function getSound(key: SoundKey): Howl | undefined {
       src: [SOUND_FILES[key]],
       volume: VOLUMES[key],
       preload: true,
-      html5: key === 'boot',
+      // All through Web Audio. Once the power-on press unlocks the context,
+      // sounds may start later from a timer; an HTML5 audio element would
+      // need its play() call inside that press itself, and the boot jingle
+      // now waits a beat after it.
+      html5: false,
     });
   }
   return howls[key];
@@ -62,6 +66,11 @@ export function useAudio() {
   const playBack = useCallback(() => play('back'), [play]);
   const playSelect = useCallback(() => play('ok'), [play]);
 
+  /** Call inside the power-on press, so later sounds are allowed to play. */
+  const unlockAudio = useCallback(() => {
+    if (Howler.ctx && Howler.ctx.state !== 'running') void Howler.ctx.resume();
+  }, []);
+
   const playBoot = useCallback(() => {
     if (isMuted || bootPlayed) return;
     bootPlayed = true;
@@ -77,5 +86,6 @@ export function useAudio() {
     playBack,
     playCancel: playBack,
     playBoot,
+    unlockAudio,
   };
 }

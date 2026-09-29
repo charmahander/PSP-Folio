@@ -43,8 +43,8 @@ function hitArea(cx: number, cy: number, w: number, h: number): React.CSSPropert
 
 export default function PSPScene() {
   useXMBNavigation();
-  const { isBooting, hasStarted, start, adjustVolume, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
-  const { playNavigate, playSelect, playBack, playBoot } = useAudio();
+  const { isBooting, hasStarted, poweredOn, powerOn, adjustVolume, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
+  const { playNavigate, playSelect, playBack, unlockAudio } = useAudio();
   const theme = useTheme();
   const pspRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
@@ -203,19 +203,38 @@ export default function PSPScene() {
             aria-label="Volume up"
           />
 
-          {/* START: the control the gate prompt points at, so it has to work */}
+          {/* POWER: the switch sits on the right edge beside its label, so
+              the label and LED together make the target. */}
           <button
             onClick={() => {
-              if (hasStarted) return;
-              playBoot();
-              start();
+              if (poweredOn) return;
+              unlockAudio();
+              powerOn();
             }}
             className="absolute bg-transparent pointer-events-auto"
-            style={{ ...hitArea(802, 409.5, 59, 28), cursor: hasStarted ? 'default' : 'pointer' }}
-            aria-label="Start"
+            style={{ ...hitArea(975, 304.5, 64, 24), cursor: poweredOn ? 'default' : 'pointer' }}
+            aria-label="Power"
           />
         </div>
         
+        {/* Power LED, lit once the device is on. Sized off the device width so
+            its glow scales with the artwork like everything else. */}
+        <motion.div
+          className="absolute z-20 pointer-events-none rounded-full"
+          style={{
+            ...hitArea(998.5, 304.5, 11, 11),
+            background: 'radial-gradient(circle at 42% 38%, #f2fff0 0%, #8dff7a 35%, #2bdc3a 70%, #139a24 100%)',
+            boxShadow: [
+              `0 0 calc(${DEVICE_WIDTH} * 0.006) calc(${DEVICE_WIDTH} * 0.002) rgba(90, 255, 90, 0.95)`,
+              `0 0 calc(${DEVICE_WIDTH} * 0.018) calc(${DEVICE_WIDTH} * 0.005) rgba(60, 255, 70, 0.55)`,
+              `0 0 calc(${DEVICE_WIDTH} * 0.04) calc(${DEVICE_WIDTH} * 0.008) rgba(40, 230, 60, 0.22)`,
+            ].join(', '),
+          }}
+          initial={false}
+          animate={{ opacity: poweredOn ? 1 : 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+        />
+
         {/* XMB Screen Overlay - positioned to fill white rectangle (594x340px) */}
         {(
           <div

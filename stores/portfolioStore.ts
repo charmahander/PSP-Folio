@@ -9,6 +9,8 @@ interface PortfolioState {
   currentItem: number;
   
   // UI state
+  /** The power LED is lit; the screen boots a beat later. */
+  poweredOn: boolean;
   hasStarted: boolean;
   isBooting: boolean;
   themeIndex: number;
@@ -37,6 +39,7 @@ interface PortfolioState {
   selectItem: () => void;
   goBack: () => void;
   start: () => void;
+  powerOn: () => void;
   setTheme: (index: number) => void;
   finishBooting: () => void;
   setExpandedContent: (content: CaseStudy | null) => void;
@@ -52,6 +55,9 @@ interface PortfolioState {
   categories: Category[];
 }
 
+/** From the power switch to the screen booting. */
+const POWER_ON_DELAY_MS = 1500;
+
 /** While a panel or photo is up, the d-pad drives it instead of the menu. */
 const isDetailOpen = (s: Pick<PortfolioState, 'expandedContent' | 'expandedAbout' | 'expandedPhoto'>) =>
   Boolean(s.expandedContent || s.expandedAbout || s.expandedPhoto);
@@ -60,6 +66,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   // Settings sits leftmost as it does on a real PSP, so open on Games instead.
   currentCategory: 1,
   currentItem: 0,
+  poweredOn: false,
   hasStarted: false,
   isBooting: true,
   themeIndex: 0,
@@ -442,6 +449,14 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   
   start: () => set({ hasStarted: true }),
+
+  // The LED lights at once, then the screen waits a beat before it boots, as
+  // a real PSP pauses between the switch and the logo.
+  powerOn: () => {
+    if (get().poweredOn) return;
+    set({ poweredOn: true });
+    setTimeout(() => get().start(), POWER_ON_DELAY_MS);
+  },
 
   setTheme: (index) => set({ themeIndex: index }),
 

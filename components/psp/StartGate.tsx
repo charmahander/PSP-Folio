@@ -1,45 +1,55 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import { useAudio } from '@/hooks/useAudio';
-import WaveBackground from '../xmb/WaveBackground';
-import { useTheme } from '@/hooks/useTheme';
 
+/**
+ * The switched-off screen: plain black, with a prompt pointing at the power
+ * switch. Clicking the screen does the same as the switch. Once powered, the
+ * prompt fades and the screen stays dark until the boot a beat later.
+ */
 export default function StartGate() {
-  const { start } = usePortfolioStore();
-  const { playBoot } = useAudio();
-  const theme = useTheme();
+  const { poweredOn, powerOn } = usePortfolioStore();
+  const { unlockAudio } = useAudio();
 
-  // Browsers only allow audio once the page has a user gesture, and Safari
-  // wants the play() call inside the handler's own call stack - so the jingle
-  // starts here, before the state change that mounts the boot sequence.
+  // Inside the press itself, so the boot jingle is allowed to play later
   const begin = useCallback(() => {
-    playBoot();
-    start();
-  }, [playBoot, start]);
+    unlockAudio();
+    powerOn();
+  }, [unlockAudio, powerOn]);
 
+  // Keyboard users can power on too
   useEffect(() => {
+    if (poweredOn) return;
     const onKey = () => begin();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [begin]);
+  }, [begin, poweredOn]);
 
   return (
     <div
-      className="absolute inset-0 cursor-pointer"
-      onClick={begin}
-      style={{ background: theme.background }}
+      className={`absolute inset-0 bg-black ${poweredOn ? '' : 'cursor-pointer'}`}
+      onClick={poweredOn ? undefined : begin}
     >
-      <WaveBackground />
-      <div className="absolute inset-0 flex items-center justify-center">
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center"
+        animate={{ opacity: poweredOn ? 0 : 1 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+      >
         <div
-          className="text-white font-rodin text-center"
-          style={{ fontSize: '0.85em', letterSpacing: '0.35em', whiteSpace: 'nowrap' }}
+          className="font-rodin text-center"
+          style={{
+            color: 'rgba(255,255,255,0.72)',
+            fontSize: '0.8em',
+            letterSpacing: '0.08em',
+            whiteSpace: 'nowrap',
+          }}
         >
-          PRESS START
+          &quot;Power&quot; on to start
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
