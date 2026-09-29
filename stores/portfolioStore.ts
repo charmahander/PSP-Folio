@@ -40,6 +40,9 @@ interface PortfolioState {
   goBack: () => void;
   start: () => void;
   powerOn: () => void;
+  powerOff: () => void;
+  /** How many times the screen has booted; the first boot starts from black. */
+  bootCount: number;
   setTheme: (index: number) => void;
   finishBooting: () => void;
   setExpandedContent: (content: CaseStudy | null) => void;
@@ -57,6 +60,7 @@ interface PortfolioState {
 
 /** From the power switch to the screen booting. */
 const POWER_ON_DELAY_MS = 1500;
+let bootTimer: ReturnType<typeof setTimeout> | undefined;
 
 /** While a panel or photo is up, the d-pad drives it instead of the menu. */
 const isDetailOpen = (s: Pick<PortfolioState, 'expandedContent' | 'expandedAbout' | 'expandedPhoto'>) =>
@@ -67,6 +71,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   currentCategory: 1,
   currentItem: 0,
   poweredOn: false,
+  bootCount: 0,
   hasStarted: false,
   isBooting: true,
   themeIndex: 0,
@@ -448,14 +453,23 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     }
   },
   
-  start: () => set({ hasStarted: true }),
+  start: () => set((s) => ({ hasStarted: true, bootCount: s.bootCount + 1 })),
 
   // The LED lights at once, then the screen waits a beat before it boots, as
   // a real PSP pauses between the switch and the logo.
   powerOn: () => {
     if (get().poweredOn) return;
     set({ poweredOn: true });
-    setTimeout(() => get().start(), POWER_ON_DELAY_MS);
+    clearTimeout(bootTimer);
+    bootTimer = setTimeout(() => get().start(), POWER_ON_DELAY_MS);
+  },
+
+  // Screen to black and the boot rewound, but where the user was in the menu
+  // is left alone, so powering on again resumes there as a PSP does from
+  // sleep. Cancels a boot still waiting out its delay.
+  powerOff: () => {
+    clearTimeout(bootTimer);
+    set({ poweredOn: false, hasStarted: false, isBooting: true });
   },
 
   setTheme: (index) => set({ themeIndex: index }),

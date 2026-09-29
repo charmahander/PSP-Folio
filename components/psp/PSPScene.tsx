@@ -43,7 +43,7 @@ function hitArea(cx: number, cy: number, w: number, h: number): React.CSSPropert
 
 export default function PSPScene() {
   useXMBNavigation();
-  const { isBooting, hasStarted, poweredOn, powerOn, adjustVolume, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
+  const { isBooting, hasStarted, poweredOn, powerOn, powerOff, adjustVolume, navigateLeft, navigateRight, navigateUp, navigateDown, selectItem, goBack } = usePortfolioStore();
   const { playNavigate, playSelect, playBack, unlockAudio } = useAudio();
   const theme = useTheme();
   const pspRef = useRef<HTMLDivElement>(null);
@@ -204,16 +204,21 @@ export default function PSPScene() {
           />
 
           {/* POWER: the switch sits on the right edge beside its label, so
-              the label and LED together make the target. */}
+              the label and LED together make the target. It toggles. */}
           <button
             onClick={() => {
-              if (poweredOn) return;
+              if (poweredOn) {
+                powerOff();
+                return;
+              }
               unlockAudio();
               powerOn();
             }}
-            className="absolute bg-transparent pointer-events-auto"
-            style={{ ...hitArea(975, 304.5, 64, 24), cursor: poweredOn ? 'default' : 'pointer' }}
-            aria-label="Power"
+            // No ring on a mouse click; keyboard focus still shows one
+            className="absolute bg-transparent pointer-events-auto rounded focus:outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-white/60"
+            style={{ ...hitArea(975, 304.5, 64, 24), cursor: 'pointer' }}
+            aria-label={poweredOn ? 'Power off' : 'Power on'}
+            aria-pressed={poweredOn}
           />
         </div>
         

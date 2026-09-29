@@ -39,6 +39,10 @@ function getSound(key: SoundKey): Howl | undefined {
   return howls[key];
 }
 
+/**
+ * Guards against the boot effect running twice for one power-on (as React's
+ * dev mode does); re-armed by each power-on so every boot has its jingle.
+ */
 let bootPlayed = false;
 
 export function useAudio() {
@@ -66,8 +70,12 @@ export function useAudio() {
   const playBack = useCallback(() => play('back'), [play]);
   const playSelect = useCallback(() => play('ok'), [play]);
 
-  /** Call inside the power-on press, so later sounds are allowed to play. */
+  /**
+   * Call inside the power-on press: unlocks audio so the delayed jingle is
+   * allowed to play, and arms it for this boot.
+   */
   const unlockAudio = useCallback(() => {
+    bootPlayed = false;
     if (Howler.ctx && Howler.ctx.state !== 'running') void Howler.ctx.resume();
   }, []);
 
