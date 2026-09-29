@@ -148,6 +148,14 @@ html {
   }
 }
 
+/* Scrolls without a visible bar; the drawer signals overflow with a fade */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Custom scrollbar for XMB content */
 .xmb-scrollable::-webkit-scrollbar {
   width: 4px;

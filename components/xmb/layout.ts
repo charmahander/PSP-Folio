@@ -64,13 +64,22 @@ export const DETAIL_ROW_LEFT = 24;
  * when it previews a game: the active column moves from CATEGORY_X to here.
  */
 export const ASIDE_COLUMN_X = 110;
-/** The highlighted item grows into a preview at Sony's ICON1 size. */
-export const ASIDE_PREVIEW_W = 144;
-export const ASIDE_PREVIEW_H = 80;
-/** Nudged down so the preview clears the category label above it. */
-export const ASIDE_PREVIEW_DROP = 6;
-/** Panel content starts below the status bar (8 gutter + 26 icon + air). */
-export const PANEL_TOP = 44;
+/**
+ * The highlighted item grows into a preview, in Sony's ICON1 proportions but
+ * smaller: it has to fit the band between the category label (which ends
+ * near y=130) and the next item's icon (which starts at y=222) with even air
+ * on both sides, and a full-size 80-tall preview left only 3 units above it.
+ */
+export const ASIDE_PREVIEW_W = 112;
+export const ASIDE_PREVIEW_H = 62;
+/** Centres the preview in that band: it spans 145-207, 15 clear each side. */
+export const ASIDE_PREVIEW_DROP = 8;
+/**
+ * Where drawer content starts: the status bar ends at 34 (8 gutter + 26
+ * icon), plus the drawer's 16 section gap. The scroll area adds 4 of its own
+ * so its top fade does not dim the first line.
+ */
+export const PANEL_TOP = 46;
 
 export function itemOffsetY(offset: number): number {
   return ITEM_Y + offset * ITEM_STEP - (offset < 0 ? ITEM_ABOVE_BAR_SKIP : 0);

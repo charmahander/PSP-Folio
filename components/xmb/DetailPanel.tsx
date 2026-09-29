@@ -12,9 +12,24 @@ import { px, DETAIL_PANEL_SHARE, PANEL_TOP } from './layout';
  */
 const EDGE_FEATHER = `linear-gradient(90deg, transparent 0, #000 ${px(14)})`;
 
-const PAD = 16;
 const TITLE_SIZE = 15;
 const BODY_SIZE = 9.5;
+
+/**
+ * One spacing scale for the whole drawer, in screen grid units: 4 inside a
+ * group, 8 between items, 12 before a sub-heading, 16 between sections. The
+ * gap under the status bar is a section gap too, so the drawer's content sits
+ * as far from the bar as its sections sit from each other.
+ */
+const SPACE = { tight: 4, item: 8, group: 12, section: 16 } as const;
+const PAD_X = 16;
+const PAD_BOTTOM = 20;
+
+/**
+ * Fades content out at the scroll area's edges instead of a scrollbar: the
+ * bottom fade says there is more, the top one softens text scrolling away.
+ */
+const SCROLL_FADE = `linear-gradient(180deg, transparent 0, #000 ${px(SPACE.tight)}, #000 calc(100% - ${px(18)}), transparent 100%)`;
 
 /**
  * What X opens, drawn on the screen itself rather than as a page overlay: the
@@ -72,8 +87,13 @@ export default function DetailPanel() {
               the date, time and battery stay clear while reading. */}
           <div
             ref={scrollRef}
-            className="absolute left-0 right-0 bottom-0 overflow-y-auto xmb-scrollable"
-            style={{ top: px(PANEL_TOP), padding: `0 ${px(PAD)} ${px(PAD)}` }}
+            className="absolute left-0 right-0 bottom-0 overflow-y-auto no-scrollbar"
+            style={{
+              top: px(PANEL_TOP),
+              padding: `${px(SPACE.tight)} ${px(PAD_X)} ${px(PAD_BOTTOM)}`,
+              WebkitMaskImage: SCROLL_FADE,
+              maskImage: SCROLL_FADE,
+            }}
           >
             {expandedContent ? (
               <ProjectBody project={expandedContent} />
@@ -87,69 +107,76 @@ export default function DetailPanel() {
   );
 }
 
-function Title({ children }: { children: React.ReactNode }) {
+/** Stacks its children with one gap, so spacing lives in one place. */
+function Stack({ gap, children, style }: { gap: number; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <h2
-      style={{
-        fontSize: px(TITLE_SIZE),
-        lineHeight: 1.2,
-        fontWeight: 400,
-        margin: 0,
-      }}
-    >
+    <div className="flex flex-col" style={{ gap: px(gap), ...style }}>
       {children}
-    </h2>
+    </div>
   );
 }
 
+function Header({ title, subtitle }: { title: React.ReactNode; subtitle?: string }) {
+  return (
+    <Stack gap={SPACE.tight}>
+      <h2 style={{ fontSize: px(TITLE_SIZE), lineHeight: 1.2, fontWeight: 400, margin: 0 }}>{title}</h2>
+      {subtitle && <p style={{ fontSize: px(BODY_SIZE), lineHeight: 1.4, opacity: 0.7 }}>{subtitle}</p>}
+    </Stack>
+  );
+}
+
+function Figure({ src, alt, position = 'center' }: { src: string; alt: string; position?: string }) {
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="w-full block"
+      style={{ aspectRatio: '1.9', objectFit: 'cover', objectPosition: position }}
+    />
+  );
+}
+
+const bodyText: React.CSSProperties = { fontSize: px(BODY_SIZE), lineHeight: 1.55 };
+
 function ProjectBody({ project }: { project: CaseStudy }) {
   const { content } = project;
-  const rows: [string, string | undefined][] = [
-    ['Role', content.role],
-    ['Skills', content.skills ?? project.categories?.join(', ')],
-    ['Timeline', content.timeline ?? content.duration],
-  ];
+  const rows = (
+    [
+      ['Role', content.role],
+      ['Skills', content.skills ?? project.categories?.join(', ')],
+      ['Timeline', content.timeline ?? content.duration],
+    ] as [string, string | undefined][]
+  ).filter(([, value]) => value);
 
   return (
-    <>
-      <Title>
-        {project.title}: {project.tagline}
-      </Title>
+    <Stack gap={SPACE.section}>
+      <Header title={`${project.title}: ${project.tagline}`} />
 
-      <dl style={{ marginTop: px(14), fontSize: px(BODY_SIZE) }}>
-        {rows
-          .filter(([, value]) => value)
-          .map(([label, value]) => (
-            <div
-              key={label}
-              className="flex justify-between"
-              style={{ gap: px(12), marginTop: px(5) }}
-            >
-              <dt style={{ fontWeight: 500 }}>{label}</dt>
-              <dd className="text-right" style={{ margin: 0, opacity: 0.8 }}>
-                {value}
-              </dd>
-            </div>
-          ))}
-      </dl>
-
-      <img
-        src={project.thumbnail}
-        alt={project.title}
-        className="w-full block"
-        style={{ marginTop: px(14), aspectRatio: '1.9', objectFit: 'cover' }}
-      />
-
-      <div style={{ fontSize: px(BODY_SIZE), lineHeight: 1.5, opacity: 0.85 }}>
-        {content.overview && <p style={{ marginTop: px(14) }}>{content.overview}</p>}
-        {content.sections.map((section) => (
-          <div key={section.title} style={{ marginTop: px(12) }}>
-            <h3 style={{ fontWeight: 500, opacity: 1 }}>{section.title}</h3>
-            <p style={{ marginTop: px(3) }}>{section.content}</p>
+      {/* Label left, value right-aligned; each row sizes its own label so a
+          long value keeps the full width it needs */}
+      <Stack gap={SPACE.tight} style={{ fontSize: px(BODY_SIZE), lineHeight: 1.4 }}>
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex justify-between" style={{ gap: px(SPACE.group) }}>
+            <span style={{ fontWeight: 500 }}>{label}</span>
+            <span className="text-right" style={{ opacity: 0.8 }}>
+              {value}
+            </span>
           </div>
         ))}
-      </div>
-    </>
+      </Stack>
+
+      <Figure src={project.thumbnail} alt={project.title} />
+
+      <Stack gap={SPACE.group} style={{ ...bodyText, opacity: 0.85 }}>
+        {content.overview && <p>{content.overview}</p>}
+        {content.sections.map((section) => (
+          <Stack key={section.title} gap={SPACE.tight}>
+            <h3 style={{ fontWeight: 500 }}>{section.title}</h3>
+            <p>{section.content}</p>
+          </Stack>
+        ))}
+      </Stack>
+    </Stack>
   );
 }
 
@@ -157,44 +184,29 @@ function AboutBody({ item }: { item: AboutItem }) {
   const { detail } = item;
 
   return (
-    <>
-      <Title>{item.title}</Title>
-      {item.description && (
-        <p style={{ marginTop: px(4), fontSize: px(BODY_SIZE), opacity: 0.7 }}>
-          {item.description}
-        </p>
-      )}
+    <Stack gap={SPACE.section}>
+      <Header title={item.title} subtitle={item.description} />
 
-      {item.photo && (
-        <img
-          src={item.photo}
-          alt={item.title}
-          className="w-full block"
-          style={{ marginTop: px(12), aspectRatio: '1.9', objectFit: 'cover', objectPosition: '50% 30%' }}
-        />
-      )}
+      {item.photo && <Figure src={item.photo} alt={item.title} position="50% 30%" />}
 
-      <div style={{ marginTop: px(12), fontSize: px(BODY_SIZE), lineHeight: 1.55 }}>
-        {detail?.kind === 'paragraphs' &&
-          detail.body.map((paragraph, i) => (
-            <p key={i} style={{ marginTop: i ? px(8) : 0, opacity: 0.85 }}>
-              {paragraph}
-            </p>
+      {detail?.kind === 'paragraphs' && (
+        <Stack gap={SPACE.item} style={{ ...bodyText, opacity: 0.85 }}>
+          {detail.body.map((paragraph, i) => (
+            <p key={i}>{paragraph}</p>
           ))}
+        </Stack>
+      )}
 
-        {detail?.kind === 'list' && (
-          <ul className="list-disc" style={{ paddingLeft: px(12) }}>
-            {detail.items.map((entry, i) => (
-              <li key={i} style={{ marginTop: i ? px(8) : 0 }}>
-                <span style={{ fontWeight: 500 }}>{entry.title}</span>
-                <span className="block" style={{ opacity: 0.8 }}>
-                  {entry.body}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </>
+      {detail?.kind === 'list' && (
+        <ul className="list-disc flex flex-col" style={{ ...bodyText, gap: px(SPACE.item), paddingLeft: px(SPACE.group), margin: 0 }}>
+          {detail.items.map((entry, i) => (
+            <li key={i}>
+              <span className="block" style={{ fontWeight: 500 }}>{entry.title}</span>
+              <span className="block" style={{ opacity: 0.8 }}>{entry.body}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Stack>
   );
 }
