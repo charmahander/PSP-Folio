@@ -19,7 +19,7 @@ export default function PhotoViewer() {
       {expandedPhoto && (
         <motion.div
           key={expandedPhoto.src}
-          className="absolute inset-0 z-40 bg-black"
+          className="absolute inset-0 z-50 bg-black"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

@@ -59,8 +59,18 @@ export const ITEM_TEXT_MAX = 224;
 export const DETAIL_PANEL_SHARE = 0.55;
 /** Where the highlighted row's thumbnail moves to when it steps aside. */
 export const DETAIL_ROW_LEFT = 24;
-/** Clearance between the stepped-aside row's text and the panel. */
-export const DETAIL_ROW_GAP = 10;
+/**
+ * With art or a panel up the whole menu slides left, as the hardware does
+ * when it previews a game: the active column moves from CATEGORY_X to here.
+ */
+export const ASIDE_COLUMN_X = 110;
+/** The highlighted item grows into a preview at Sony's ICON1 size. */
+export const ASIDE_PREVIEW_W = 144;
+export const ASIDE_PREVIEW_H = 80;
+/** Nudged down so the preview clears the category label above it. */
+export const ASIDE_PREVIEW_DROP = 6;
+/** Panel content starts below the status bar (8 gutter + 26 icon + air). */
+export const PANEL_TOP = 44;
 
 export function itemOffsetY(offset: number): number {
   return ITEM_Y + offset * ITEM_STEP - (offset < 0 ? ITEM_ABOVE_BAR_SKIP : 0);

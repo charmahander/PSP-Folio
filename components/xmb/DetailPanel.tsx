@@ -4,7 +4,13 @@ import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePortfolioStore } from '@/stores/portfolioStore';
 import type { AboutItem, CaseStudy } from '@/types/xmb';
-import { px, DETAIL_PANEL_SHARE } from './layout';
+import { px, DETAIL_PANEL_SHARE, PANEL_TOP } from './layout';
+
+/**
+ * Feathers the drawer's left edge. A hard edge made the blurred region read as
+ * a solid block laid over the menu rather than the menu seen through glass.
+ */
+const EDGE_FEATHER = `linear-gradient(90deg, transparent 0, #000 ${px(14)})`;
 
 const PAD = 16;
 const TITLE_SIZE = 15;
@@ -41,12 +47,15 @@ export default function DetailPanel() {
           className="absolute top-0 right-0 bottom-0 z-30 text-white"
           style={{
             width: `${DETAIL_PANEL_SHARE * 100}%`,
-            // Blur alone, no tinted fill: whatever the menu shows behind the
-            // panel reads through it. A shadow on the text keeps it legible
-            // over bright artwork without a solid backing.
-            backdropFilter: `blur(${px(22)}) saturate(1.2)`,
-            WebkitBackdropFilter: `blur(${px(22)}) saturate(1.2)`,
-            textShadow: '0 1px 3px rgba(0,0,0,0.55)',
+            // Blur alone, no fill and no colour boost. Heavy enough to calm the
+            // text's backdrop, light enough that the waves still read through
+            // as soft light - a stronger blur averaged them into one flat
+            // purple, which looked like a solid panel.
+            backdropFilter: `blur(${px(9)})`,
+            WebkitBackdropFilter: `blur(${px(9)})`,
+            WebkitMaskImage: EDGE_FEATHER,
+            maskImage: EDGE_FEATHER,
+            textShadow: '0 1px 3px rgba(0,0,0,0.6)',
           }}
           initial={{ opacity: 0, x: '8%' }}
           animate={{ opacity: 1, x: 0 }}
@@ -59,10 +68,12 @@ export default function DetailPanel() {
           onTouchEnd={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Scrolls beneath the status bar's band rather than under it, so
+              the date, time and battery stay clear while reading. */}
           <div
             ref={scrollRef}
-            className="h-full overflow-y-auto xmb-scrollable"
-            style={{ padding: `${px(14)} ${px(PAD)} ${px(PAD)}` }}
+            className="absolute left-0 right-0 bottom-0 overflow-y-auto xmb-scrollable"
+            style={{ top: px(PANEL_TOP), padding: `0 ${px(PAD)} ${px(PAD)}` }}
           >
             {expandedContent ? (
               <ProjectBody project={expandedContent} />

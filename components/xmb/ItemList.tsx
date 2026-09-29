@@ -19,10 +19,11 @@ import {
   ITEM_TITLE_SIZE,
   ITEM_SUBTITLE_SIZE,
   ITEM_TEXT_MAX,
-  SCREEN_W,
-  DETAIL_PANEL_SHARE,
   DETAIL_ROW_LEFT,
-  DETAIL_ROW_GAP,
+  ASIDE_COLUMN_X,
+  ASIDE_PREVIEW_W,
+  ASIDE_PREVIEW_H,
+  ASIDE_PREVIEW_DROP,
 } from './layout';
 
 /** Every gallery thumbnail is cropped to Goku '21's own 2048x1359 frame. */
@@ -162,15 +163,13 @@ export default function ItemList() {
   const focusSize = isInSubfolder ? SUB_ICON_FOCUS : ITEM_ICON_FOCUS;
   const bodySize = isInSubfolder ? SUB_ICON_BODY : ITEM_ICON_BODY;
 
-  // With a panel open or the project's art up, the highlighted row steps out
-  // of the column to the screen's left edge, and its text stops short of the
-  // right-hand 55% so nothing runs underneath it.
+  // With a panel open or the project's art up, the menu previews the item the
+  // way the hardware previews a game: the column slides left, and the
+  // highlighted item grows into a large preview against the screen's left
+  // edge with its text hidden. Everything else stays in the column.
   const stepAside = Boolean(expandedContent || expandedAbout || settledArt);
-  const rowLeft = ITEM_X - focusSize / 2;
-  const asideShift = DETAIL_ROW_LEFT - rowLeft;
-  const panelLeft = SCREEN_W * (1 - DETAIL_PANEL_SHARE);
-  const asideTextMax =
-    panelLeft - DETAIL_ROW_GAP - (DETAIL_ROW_LEFT + focusSize + ITEM_TEXT_GAP);
+  const columnShift = stepAside ? ASIDE_COLUMN_X - ITEM_X : 0;
+  const previewShift = DETAIL_ROW_LEFT + ASIDE_PREVIEW_W / 2 - ITEM_X;
 
   const handleItemClick = (index: number) => {
     const clickedItem = items?.[index];
@@ -236,6 +235,10 @@ export default function ItemList() {
           const aside = stepAside && isSelected;
           const isPhoto = item.id.startsWith('gallery-');
           const isSong = item.id.startsWith('song-');
+          // Real imagery gets the framed preview; glyph icons just grow
+          const isArt =
+            isPhoto || isSong || item.type === 'caseStudy' || item.id === 'origin-story';
+          const framed = aside && isArt;
 
           return (
             <motion.div
@@ -248,11 +251,11 @@ export default function ItemList() {
                 gap: px(ITEM_TEXT_GAP),
               }}
               animate={{
-                x: px(aside ? asideShift : 0),
-                y: px(itemOffsetY(offset) - ITEM_Y),
+                x: px(aside ? previewShift : columnShift),
+                y: px(itemOffsetY(offset) - ITEM_Y + (aside ? ASIDE_PREVIEW_DROP : 0)),
                 opacity,
               }}
-              transition={{ type: 'tween', duration: aside || stepAside ? 0.3 : 0.14, ease: 'easeOut' }}
+              transition={{ type: 'tween', duration: stepAside ? 0.3 : 0.14, ease: 'easeOut' }}
               onClick={() => handleItemClick(index)}
             >
               {/* Fixed slot so body and focus sizes share one centre line */}
@@ -265,23 +268,38 @@ export default function ItemList() {
                 <motion.img
                   src={getItemIconPath(item)}
                   alt={item.title}
+                  // The slot centres whatever it holds, so the preview grows
+                  // out around the same point the row was moved to.
                   animate={{
-                    width: px(iconSize),
-                    height: px(isPhoto ? iconSize / GALLERY_ASPECT : iconSize),
+                    width: px(framed ? ASIDE_PREVIEW_W : aside ? ASIDE_PREVIEW_H : iconSize),
+                    height: px(
+                      aside ? ASIDE_PREVIEW_H : isPhoto ? iconSize / GALLERY_ASPECT : iconSize,
+                    ),
+                    boxShadow: framed
+                      ? '0 0 0 0.06em rgba(255,255,255,0.55), 0 0.2em 0.6em rgba(0,0,0,0.35)'
+                      : '0 0 0 0em rgba(255,255,255,0), 0 0 0 rgba(0,0,0,0)',
                   }}
-                  transition={{ duration: 0.14, ease: 'easeOut' }}
+                  transition={{ duration: stepAside ? 0.3 : 0.14, ease: 'easeOut' }}
                   style={{
-                    objectFit: isPhoto || isSong ? 'cover' : 'contain',
-                    objectPosition: GALLERY_CROP[item.id] ?? 'center',
+                    // Project art fills the preview; glyphs stay whole in it
+                    objectFit: isPhoto || isSong || framed ? 'cover' : 'contain',
+                    objectPosition:
+                      GALLERY_CROP[item.id] ?? (item.id === 'origin-story' ? '50% 30%' : 'center'),
                     display: 'block',
+                    // Free to outgrow the slot, which centres the overflow.
+                    // Tailwind's base caps images at their parent's width.
+                    flexShrink: 0,
+                    maxWidth: 'none',
                   }}
                 />
               </div>
 
+              {/* The preview carries the item on its own, as on hardware */}
               <motion.div
                 className="flex flex-col"
-                animate={{ maxWidth: px(aside ? asideTextMax : ITEM_TEXT_MAX) }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
+                style={{ maxWidth: px(ITEM_TEXT_MAX) }}
+                animate={{ opacity: aside ? 0 : 1 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
               >
                 {/* Kept mounted and faded by selection - mounting inside a
                     presence wrapper skips the enter animation. */}
@@ -292,17 +310,14 @@ export default function ItemList() {
                   style={{
                     fontSize: px(ITEM_TITLE_SIZE),
                     lineHeight: 1.25,
+                    whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    ...(aside
-                      ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }
-                      : { whiteSpace: 'nowrap' as const }),
                   }}
                 >
                   {item.title}
                 </motion.div>
-                {/* Stepped aside, the row is just its name beside the panel */}
-                {subtext && !aside && (
+                {subtext && (
                   <motion.div
                     animate={{ opacity: isSelected ? 0.7 : 0 }}
                     transition={{ duration: 0.22, ease: 'easeOut' }}
@@ -311,12 +326,9 @@ export default function ItemList() {
                       marginTop: px(2),
                       fontSize: px(ITEM_SUBTITLE_SIZE),
                       lineHeight: 1.35,
+                      whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
-                      // Stepped aside there is less width, so allow two lines
-                      ...(aside
-                        ? { display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const }
-                        : { whiteSpace: 'nowrap' as const }),
                     }}
                   >
                     {subtext}

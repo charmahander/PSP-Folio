@@ -45,8 +45,9 @@ export default function XMBInterface() {
           <ItemArtwork />
           
           {/* Status bar - fade in with menu */}
+          {/* Above the drawer: the clock and battery stay up whatever opens */}
           <motion.div
-            className="absolute top-0 right-0 left-0"
+            className="absolute top-0 right-0 left-0 z-40 pointer-events-none"
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : -6 }}
             transition={{ duration: 0.4, ease: 'easeOut', delay: 0.2 }}

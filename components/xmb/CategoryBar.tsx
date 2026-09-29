@@ -14,6 +14,7 @@ import {
   CATEGORY_CELL_W,
   CATEGORY_LABEL_SIZE,
   CATEGORY_LABEL_GAP,
+  ASIDE_COLUMN_X,
 } from './layout';
 
 // Map category icon keys to PNG files (PSP-inspired set)
@@ -62,7 +63,7 @@ export default function CategoryBar() {
               height: px(CATEGORY_ICON),
             }}
             animate={{
-              x: px(offset * CATEGORY_STEP),
+              x: px(offset * CATEGORY_STEP + (rightCleared ? ASIDE_COLUMN_X - CATEGORY_X : 0)),
               opacity:
                 rightCleared && offset > 0 ? 0 : isSelected ? 1 : distance === 1 ? 0.55 : 0.3,
             }}
