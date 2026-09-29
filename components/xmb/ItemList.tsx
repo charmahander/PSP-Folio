@@ -166,7 +166,8 @@ export default function ItemList() {
   // way the hardware previews a game: the column slides left, and the
   // highlighted item grows into a large preview against the screen's left
   // edge with its text hidden. Everything else stays in the column.
-  const stepAside = Boolean(expandedContent || expandedAbout || settledArt);
+  const drawerOpen = Boolean(expandedContent || expandedAbout);
+  const stepAside = drawerOpen || Boolean(settledArt);
   const columnShift = stepAside ? ASIDE_COLUMN_X - ITEM_X : 0;
 
   const handleItemClick = (index: number) => {
@@ -237,6 +238,10 @@ export default function ItemList() {
           const isArt =
             isPhoto || isSong || item.type === 'caseStudy' || item.id === 'origin-story';
           const framed = aside && isArt;
+          // The preview overflows its slot equally both sides, so the text
+          // starts past the preview's right edge rather than under it.
+          const previewW = framed ? ASIDE_PREVIEW_W : aside ? ASIDE_PREVIEW_H : focusSize;
+          const textOffset = (previewW - focusSize) / 2;
 
           return (
             <motion.div
@@ -297,12 +302,23 @@ export default function ItemList() {
                 />
               </div>
 
-              {/* The preview carries the item on its own, as on hardware */}
+              {/* Beside the preview while the art is up; with a drawer open
+                  the drawer carries the name, so the row goes quiet. */}
               <motion.div
                 className="flex flex-col"
-                style={{ maxWidth: px(ITEM_TEXT_MAX) }}
-                animate={{ opacity: aside ? 0 : 1 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
+                style={{
+                  maxWidth: px(ITEM_TEXT_MAX),
+                  // Over full-screen art the text needs its own contrast
+                  textShadow: aside
+                    ? '0 1px 2px rgba(0,0,0,0.85), 0 0 10px rgba(0,0,0,0.6)'
+                    : undefined,
+                }}
+                initial={false}
+                animate={{
+                  opacity: aside && drawerOpen ? 0 : 1,
+                  marginLeft: px(aside ? textOffset : 0),
+                }}
+                transition={{ duration: stepAside ? 0.3 : 0.2, ease: 'easeOut' }}
               >
                 {/* Kept mounted and faded by selection - mounting inside a
                     presence wrapper skips the enter animation. */}
@@ -322,7 +338,7 @@ export default function ItemList() {
                 </motion.div>
                 {subtext && (
                   <motion.div
-                    animate={{ opacity: isSelected ? 0.7 : 0 }}
+                    animate={{ opacity: isSelected ? (aside ? 0.95 : 0.7) : 0 }}
                     transition={{ duration: 0.22, ease: 'easeOut' }}
                     className="text-white"
                     style={{
