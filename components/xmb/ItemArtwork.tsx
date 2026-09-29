@@ -7,9 +7,14 @@ import { usePortfolioStore } from '@/stores/portfolioStore';
 /** How long the cursor must rest on an item before its art takes the background. */
 const DWELL_MS = 2500;
 
-/** 0% to 100% opacity, left to right, eased so the art is solid by a third in. */
-const ART_FADE =
-  'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.45) 12%, rgba(0,0,0,0.85) 24%, #000 36%)';
+/**
+ * The art fills the screen, as a PSP's game backdrop does, so the menu and
+ * status bar sit over it. Project art is often light, so a soft shade under
+ * the menu's side and the status bar keeps white text readable on it.
+ */
+const ART_SCRIM =
+  'linear-gradient(90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.25) 35%, rgba(0,0,0,0) 60%), ' +
+  'linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 22%)';
 
 /**
  * A PSP shows the highlighted game's own artwork behind the menu. Only case
@@ -31,10 +36,13 @@ export default function ItemArtwork() {
 
   const items = isInSubfolder ? subfolderItems : categories[currentCategory]?.items;
   const item = items?.[currentItem];
+  // A project's own full-screen art when it has one, else its thumbnail
   const art =
-    item && 'type' in item && item.type === 'caseStudy' && 'thumbnail' in item
-      ? item.thumbnail ?? null
-      : null;
+    item && item.type === 'caseStudy' && 'backgroundImage' in item
+      ? item.backgroundImage ?? item.thumbnail ?? null
+      : item && item.type === 'caseStudy' && 'thumbnail' in item
+        ? item.thumbnail ?? null
+        : null;
 
   // Only art the cursor has rested on is shown, so scrolling the column does
   // not strobe a background per row. Any move clears it immediately. Kept in
@@ -62,21 +70,13 @@ export default function ItemArtwork() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
         >
-          {/* The right 55%, fading in from nothing at its left edge so the
-              menu background still reads on the left. The highlighted row
-              steps aside to the left edge to make room for it. */}
           <img
             src={settled}
             alt=""
-            className="absolute top-0 right-0 h-full"
-            style={{
-              width: '55%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-              WebkitMaskImage: ART_FADE,
-              maskImage: ART_FADE,
-            }}
+            className="absolute inset-0 w-full h-full"
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
           />
+          <div className="absolute inset-0" style={{ background: ART_SCRIM }} />
         </motion.div>
       )}
     </AnimatePresence>

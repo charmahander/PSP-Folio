@@ -31,7 +31,10 @@ export interface CaseStudy {
   tagline: string;
   categories: string[];
   thumbnail: string;
+  /** Full-screen art shown behind the menu, and first image in the drawer. */
   backgroundImage?: string;
+  /** Further images shown in the drawer, in order, after the first. */
+  gallery?: string[];
   content: CaseStudyContent;
 }
 

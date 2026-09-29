@@ -248,6 +248,10 @@ export default function ItemList() {
                 height: px(focusSize),
                 gap: px(ITEM_TEXT_GAP),
               }}
+              // Mount at rest. Without this each row animated in from
+              // nothing, springing out from the highlighted row whenever the
+              // category changed; the column's own fade is the transition.
+              initial={false}
               animate={{
                 x: px(columnShift),
                 y: px(itemOffsetY(offset) - ITEM_Y + (aside ? ASIDE_PREVIEW_DROP : 0)),
@@ -264,6 +268,7 @@ export default function ItemList() {
                 {/* Photos are cropped to one landscape frame and album art to
                     the square icon, rather than letterboxed inside the slot. */}
                 <motion.img
+                  initial={false}
                   src={getItemIconPath(item)}
                   alt={item.title}
                   // The slot centres whatever it holds, so the preview grows

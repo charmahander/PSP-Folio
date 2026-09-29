@@ -165,17 +165,24 @@ function ProjectBody({ project }: { project: CaseStudy }) {
         ))}
       </Stack>
 
-      <Figure src={project.thumbnail} alt={project.title} />
-
-      <Stack gap={SPACE.group} style={{ ...bodyText, opacity: 0.85 }}>
-        {content.overview && <p>{content.overview}</p>}
-        {content.sections.map((section) => (
-          <Stack key={section.title} gap={SPACE.tight}>
-            <h3 style={{ fontWeight: 500 }}>{section.title}</h3>
-            <p>{section.content}</p>
-          </Stack>
+      {/* The project's images as one run, at their own proportions */}
+      <Stack gap={SPACE.item}>
+        {[project.backgroundImage ?? project.thumbnail, ...(project.gallery ?? [])].map((src, i) => (
+          <img key={src} src={src} alt={i ? '' : project.title} className="w-full h-auto block" loading="lazy" />
         ))}
       </Stack>
+
+      {(content.overview || content.sections.length > 0) && (
+        <Stack gap={SPACE.group} style={{ ...bodyText, opacity: 0.85 }}>
+          {content.overview && <p>{content.overview}</p>}
+          {content.sections.map((section) => (
+            <Stack key={section.title} gap={SPACE.tight}>
+              <h3 style={{ fontWeight: 500 }}>{section.title}</h3>
+              <p>{section.content}</p>
+            </Stack>
+          ))}
+        </Stack>
+      )}
     </Stack>
   );
 }

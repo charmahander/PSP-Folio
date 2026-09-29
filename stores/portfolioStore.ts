@@ -110,17 +110,19 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
           tagline: 'Music Business co-pilot for indie artists',
           categories: ['UX Design', 'Mobile'],
           thumbnail: '/images/projects/project-1.png',
-          backgroundImage: '/images/bg-1.jpg',
+          backgroundImage: '/images/projects/paidpiper/01.webp',
+          gallery: [2, 3, 4, 5, 6, 7, 8].map(
+            (n) => `/images/projects/paidpiper/${String(n).padStart(2, '0')}.webp`,
+          ),
           content: {
-            overview: 'A comprehensive case study exploring mobile gaming UX.',
+            // The drawer is images only after the details, so no prose here
+            overview: '',
             role: 'Designer - Product & Strategy',
             skills: 'Product Design, Business Strategy',
             timeline: 'Sept ’24 - May ’25',
             duration: '3 months',
             tools: ['Figma', 'Protopie', 'Unity'],
             sections: [
-              { title: 'The Challenge', content: 'Creating an intuitive gaming experience for casual players.' },
-              { title: 'The Solution', content: 'A gesture-based control system that adapts to player skill level.' },
             ],
           },
         } as XMBItem,
