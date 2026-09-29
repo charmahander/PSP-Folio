@@ -60,11 +60,6 @@ export const DETAIL_PANEL_SHARE = 0.55;
 /** Where the highlighted row's thumbnail moves to when it steps aside. */
 export const DETAIL_ROW_LEFT = 24;
 /**
- * With art or a panel up the whole menu slides left, as the hardware does
- * when it previews a game: the active column moves from CATEGORY_X to here.
- */
-export const ASIDE_COLUMN_X = 110;
-/**
  * The highlighted item grows into a preview, in Sony's ICON1 proportions but
  * smaller: it has to fit the band between the category label (which ends
  * near y=130) and the next item's icon (which starts at y=222) with even air
@@ -74,6 +69,13 @@ export const ASIDE_PREVIEW_W = 112;
 export const ASIDE_PREVIEW_H = 62;
 /** Centres the preview in that band: it spans 145-207, 15 clear each side. */
 export const ASIDE_PREVIEW_DROP = 8;
+/**
+ * With art or a panel up the whole menu slides left, as the hardware does
+ * when it previews a game. The column lands on the preview's own centre, so
+ * category icon, preview and the items around it share one axis while the
+ * preview keeps its 24 margin from the screen edge.
+ */
+export const ASIDE_COLUMN_X = DETAIL_ROW_LEFT + ASIDE_PREVIEW_W / 2;
 /**
  * Where drawer content starts: the status bar ends at 34 (8 gutter + 26
  * icon), plus the drawer's 16 section gap. The scroll area adds 4 of its own

@@ -19,7 +19,6 @@ import {
   ITEM_TITLE_SIZE,
   ITEM_SUBTITLE_SIZE,
   ITEM_TEXT_MAX,
-  DETAIL_ROW_LEFT,
   ASIDE_COLUMN_X,
   ASIDE_PREVIEW_W,
   ASIDE_PREVIEW_H,
@@ -169,7 +168,6 @@ export default function ItemList() {
   // edge with its text hidden. Everything else stays in the column.
   const stepAside = Boolean(expandedContent || expandedAbout || settledArt);
   const columnShift = stepAside ? ASIDE_COLUMN_X - ITEM_X : 0;
-  const previewShift = DETAIL_ROW_LEFT + ASIDE_PREVIEW_W / 2 - ITEM_X;
 
   const handleItemClick = (index: number) => {
     const clickedItem = items?.[index];
@@ -251,7 +249,7 @@ export default function ItemList() {
                 gap: px(ITEM_TEXT_GAP),
               }}
               animate={{
-                x: px(aside ? previewShift : columnShift),
+                x: px(columnShift),
                 y: px(itemOffsetY(offset) - ITEM_Y + (aside ? ASIDE_PREVIEW_DROP : 0)),
                 opacity,
               }}

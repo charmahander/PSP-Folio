@@ -66,8 +66,8 @@ export default function DetailPanel() {
             // text's backdrop, light enough that the waves still read through
             // as soft light - a stronger blur averaged them into one flat
             // purple, which looked like a solid panel.
-            backdropFilter: `blur(${px(9)})`,
-            WebkitBackdropFilter: `blur(${px(9)})`,
+            backdropFilter: `blur(${px(7)})`,
+            WebkitBackdropFilter: `blur(${px(7)})`,
             WebkitMaskImage: EDGE_FEATHER,
             maskImage: EDGE_FEATHER,
             textShadow: '0 1px 3px rgba(0,0,0,0.6)',
